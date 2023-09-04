@@ -1,0 +1,20 @@
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+  port: 8084
+
+spring:
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsidentityservice'
+    username: 'postgres'
+    password: '0000'
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false # disable logging of sql statements
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+

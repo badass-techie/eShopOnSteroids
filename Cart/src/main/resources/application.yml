@@ -1,0 +1,13 @@
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+  port: 8082
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 10000
