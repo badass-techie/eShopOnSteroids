@@ -20,6 +20,7 @@ This code follows best practices such as:
 - Unit Testing (JUnit 5, Mockito)
 - Integration Testing (Testcontainers)
 - API Documentation (Swagger)
+- Design Patterns (Publish-Subscribe, ...)
 
 > microservices, event-driven, distributed systems, e-commerce, spring cloud, spring boot, spring cloud gateway, spring cloud config, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, elasticsearch, logstash, kibana, kafka, rabbitmq
 
