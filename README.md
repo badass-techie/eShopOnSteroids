@@ -6,12 +6,12 @@ eShopOnSteroids is a robust, well-architected, distributed, event-driven, server
 
 1. API Gateway (Spring Cloud Gateway)
 2. Service Discovery (Eureka)
-3. Centralized Configuration (Spring Cloud Config)
-4. Distributed Tracing (Sleuth, Zipkin)
-5. Circuit Breaker (Resilience4j)
-6. Database per Service (PostgreSQL, MongoDB, Redis)
-7. Event Sourcing (RabbitMQ, Kafka)
-8. Monitoring (ElasticSearch, LogStash, Kibana)
+3. Distributed Tracing (Sleuth, Zipkin)
+4. Circuit Breaker (Resilience4j)
+5. Message Bus (RabbitMQ, Kafka)
+6. Config Server (Spring Cloud Config)
+7. Database per Service (PostgreSQL, MongoDB, Redis)
+8. Centralized Monitoring (ElasticSearch, LogStash, Kibana)
 9. Control Loop (Kubernetes)
 10. Infrastructure as Code (Terraform)
 
