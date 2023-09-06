@@ -32,7 +32,7 @@ public class UserServiceTest {
     private User user;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = User.builder()
                 .id(1L)
                 .username("testuser")
@@ -47,14 +47,14 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testSignup() {
+    void testSignup() {
         SignupRequest signupRequest = new SignupRequest(
-                "testuser",
-                "testuser@example.com",
-                "password",
-                "test bio",
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getBio(),
                 "",
-                "USER"
+                user.getRole().name()
         );
 
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -66,7 +66,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUser() {
+    void testGetUser() {
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(user));
 
         UserResponse actual = userService.getUser(1L);
@@ -75,7 +75,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeactivateUser() {
+    void testDeactivateUser() {
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(user));
 
         ResponseEntity<String> response = userService.deactivateUser(1L);

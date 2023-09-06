@@ -1,9 +1,6 @@
 package com.badasstechie.product.controller;
 
-import com.badasstechie.product.dto.BrandRequest;
-import com.badasstechie.product.dto.BrandResponse;
-import com.badasstechie.product.dto.ProductRequest;
-import com.badasstechie.product.dto.ProductResponse;
+import com.badasstechie.product.dto.*;
 import com.badasstechie.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +34,14 @@ public class ProductController {
         return productService.getProduct(id).image();
     }
 
-    @PutMapping("/{id}/stock")
-    public ResponseEntity<String> setProductStock(@PathVariable String id, @RequestBody Integer stock) {
-        return productService.setProductStock(id, stock);
+    @GetMapping("/stocks")
+    public List<ProductStockDto> getProductStocks(@RequestParam List<String> ids) {
+        return productService.getProductStocks(ids);
+    }
+
+    @PostMapping("/stocks")
+    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockDto> stocks) {
+        return productService.setProductStocks(stocks);
     }
 
     @PostMapping("/brand")
@@ -63,7 +65,7 @@ public class ProductController {
     }
 
     @GetMapping("/category/{category}")
-    public List<ProductResponse> getProductSByCategory(@PathVariable String category) {
+    public List<ProductResponse> getProductsByCategory(@PathVariable String category) {
         return productService.getProductsByCategory(category);
     }
 }

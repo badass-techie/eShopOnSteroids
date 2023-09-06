@@ -1,7 +1,9 @@
 package com.badasstechie.order.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -26,8 +28,9 @@ public class OrderItem {
     @NotBlank(message = "Product name is required")
     private String productName;
 
-    @NotBlank(message = "Price is required")
+    @Min(value = 1, message = "Price must be at least 1")
     private BigDecimal unitPrice;
 
+    @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
 }

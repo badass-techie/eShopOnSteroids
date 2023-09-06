@@ -86,45 +86,6 @@ class ProductApplicationTests {
 		assert productRepository.findAll().size() == 1;
 	}
 
-	@Test
-	void shouldChangeStock() throws Exception {
-		BrandRequest brandRequest = new BrandRequest(
-				"Test Brand",
-				"Test Brand Image"
-		);
-
-		MvcResult brand = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product/brand")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(brandRequest)))
-				.andExpect(status().isCreated())
-				.andReturn();
-
-		String brandId = objectMapper.readTree(brand.getResponse().getContentAsString()).get("id").asText();
-
-		ProductRequest productRequest = new ProductRequest(
-				"Test Product",
-				"Test Product Description",
-				"Test Product Image",
-				BigDecimal.valueOf(100.00),
-				"Test Product Category",
-				brandId,
-				10
-		);
-
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(productRequest)));
-
-		// Change stock
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/product/{id}/stock", productRepository.findAll().get(0).getId())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(20)))
-				.andExpect(status().isOk());
-
-		// Stock should be changed
-		assert productRepository.findAll().get(0).getStock() == 20;
-	}
-
 	@AfterEach
 	public void cleanup() {
 		// Clean up resources after each test

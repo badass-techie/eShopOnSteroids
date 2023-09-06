@@ -1,9 +1,6 @@
 package com.badasstechie.product.service;
 
-import com.badasstechie.product.dto.BrandRequest;
-import com.badasstechie.product.dto.BrandResponse;
-import com.badasstechie.product.dto.ProductRequest;
-import com.badasstechie.product.dto.ProductResponse;
+import com.badasstechie.product.dto.*;
 import com.badasstechie.product.model.Brand;
 import com.badasstechie.product.model.Product;
 import com.badasstechie.product.repository.BrandRepository;
@@ -15,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -79,17 +78,6 @@ public class ProductService {
                 .toList();
     }
 
-    public ResponseEntity<String> setProductStock(String id, Integer stock) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        product.setStock(stock);
-
-        productRepository.save(product);
-
-        return new ResponseEntity<>("Stock updated successfully", HttpStatus.OK);
-    }
-
     public ResponseEntity<BrandResponse> addBrand(BrandRequest brandRequest) {
         Brand brand = Brand.builder()
                 .name(brandRequest.name())
@@ -126,5 +114,29 @@ public class ProductService {
                 .stream()
                 .map(this::mapProductToResponse)
                 .toList();
+    }
+
+    public List<ProductStockDto> getProductStocks(List<String> ids) {
+        return productRepository.findAllById(ids)
+                .stream()
+                .map(product -> new ProductStockDto(product.getId(), product.getStock()))
+                .toList();
+    }
+
+    public ResponseEntity<String> setProductStocks(List<ProductStockDto> stocks) {
+        List<Product> products = new ArrayList<>();
+        for (ProductStockDto stock : stocks) {
+            Optional<Product> productOptional = productRepository.findById(stock.getId());
+            if (productOptional.isEmpty())
+                return new ResponseEntity<>("Product " + stock.getId() + " not found", HttpStatus.NOT_FOUND);
+
+            Product product = productOptional.get();
+            product.setStock(stock.getStock());
+            products.add(product);
+        }
+
+        productRepository.saveAll(products);
+
+        return new ResponseEntity<>("Stocks updated", HttpStatus.OK);
     }
 }

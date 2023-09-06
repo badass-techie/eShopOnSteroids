@@ -3,14 +3,19 @@ package com.badasstechie.order.service;
 import com.badasstechie.order.dto.OrderItemDto;
 import com.badasstechie.order.dto.OrderRequest;
 import com.badasstechie.order.dto.OrderResponse;
+import com.badasstechie.order.dto.ProductStockDto;
 import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
 import com.badasstechie.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,14 +25,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
+    public final WebClient webClient;
 
     private OrderResponse mapOrderToResponse(Order order) {
         return new OrderResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getItems().stream().map(this::mapOrderItemToDto).toList(),
-                order.getStatus().name(),
                 order.getDeliveryAddress(),
+                order.getStatus().name(),
                 order.getCreated().toString()
         );
     }
@@ -51,14 +57,42 @@ public class OrderService {
     }
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest) {
+        // check if stock for each product is enough
+        ProductStockDto[] stocks = webClient.get()
+                .uri("http://localhost:8080/api/v1/product/stocks",
+                        uriBuilder -> uriBuilder.queryParam("ids", orderRequest.items().stream().map(OrderItemDto::productId).toList()).build())
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while checking stock")))
+                .bodyToMono(ProductStockDto[].class)
+                .block();
+
+        for(int i = 0; i < orderRequest.items().size(); i++) {
+            if (stocks[i].getStock() < orderRequest.items().get(i).quantity()) {
+                throw new RuntimeException("Product " + orderRequest.items().get(i).productId() + " stock is not enough");
+            } else {
+                stocks[i].setStock(stocks[i].getStock() - orderRequest.items().get(i).quantity());
+            }
+        }
+
+        // place order
         Order order = orderRepository.save(
                 Order.builder()
-                .orderNumber(UUID.randomUUID().toString())
-                .items(orderRequest.items().stream().map(this::mapDtoToOrderItem).toList())
-                .status(OrderStatus.CREATED)
-                .created(Instant.now())
-                .build()
+                        .orderNumber(UUID.randomUUID().toString())
+                        .items(orderRequest.items().stream().map(this::mapDtoToOrderItem).toList())
+                        .status(OrderStatus.CREATED)
+                        .deliveryAddress(orderRequest.deliveryAddress())
+                        .created(Instant.now())
+                        .build()
         );
+
+        // update stocks
+        webClient.post()
+                .uri("http://localhost:8080/api/v1/product/stocks")
+                .bodyValue(stocks)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while updating stock")))
+                .bodyToMono(String.class)
+                .block();
 
         return new ResponseEntity<>(mapOrderToResponse(order), HttpStatus.CREATED);
     }
