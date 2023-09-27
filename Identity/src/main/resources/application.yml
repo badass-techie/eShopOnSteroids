@@ -2,9 +2,11 @@ server:
   error:
     include-message: always
     include-binding-errors: always
-  port: 8084
+  port: 0
 
 spring:
+  application:
+    name: Identity
   datasource:
     url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsidentityservice'
     username: 'postgres'
@@ -18,3 +20,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka

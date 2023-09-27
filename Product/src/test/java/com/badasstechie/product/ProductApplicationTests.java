@@ -43,7 +43,7 @@ class ProductApplicationTests {
 	@Autowired
 	private BrandRepository brandRepository;
 
-	/*
+	/**
 	 * Set the properties for the MongoDB connection
 	 */
 	@DynamicPropertySource

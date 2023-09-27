@@ -1,0 +1,55 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+          gateway.route.RouteDefinitionLocator: info
+
+server:
+    port: 8080
+
+# Routes
+spring:
+  application:
+    name: ApiGateway
+  cloud:
+    gateway:
+      routes:
+        - id: Product
+          uri: lb://product
+          predicates:
+            - Path=/api/v*/product
+
+        - id: Order
+          uri: lb://order
+          predicates:
+            - Path=/api/v*/order
+
+        - id: Identity
+          uri: lb://identity
+          predicates:
+            - Path=/api/v*/identity
+
+        - id: Cart
+          uri: lb://cart
+          predicates:
+            - Path=/api/v*/cart
+
+        - id: DiscoveryServer
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/web
+          filters:
+            - SetPath=/   # /eureka/web -> /
+
+        - id: DiscoveryServerStaticResources
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**

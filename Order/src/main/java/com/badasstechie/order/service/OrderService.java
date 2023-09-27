@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    public final WebClient webClient;
+    public final WebClient.Builder webClientBuilder;
 
     private OrderResponse mapOrderToResponse(Order order) {
         return new OrderResponse(
@@ -58,8 +58,10 @@ public class OrderService {
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest) {
         // check if stock for each product is enough
-        ProductStockDto[] stocks = webClient.get()
-                .uri("http://localhost:8080/api/v1/product/stocks",
+        ProductStockDto[] stocks = webClientBuilder
+                .build()
+                .get()
+                .uri("http://product/api/v1/product/stocks",
                         uriBuilder -> uriBuilder.queryParam("ids", orderRequest.items().stream().map(OrderItemDto::productId).toList()).build())
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while checking stock")))
@@ -86,8 +88,10 @@ public class OrderService {
         );
 
         // update stocks
-        webClient.post()
-                .uri("http://localhost:8080/api/v1/product/stocks")
+        webClientBuilder
+                .build()
+                .post()
+                .uri("http://product/api/v1/product/stocks")
                 .bodyValue(stocks)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while updating stock")))

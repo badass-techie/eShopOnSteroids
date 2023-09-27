@@ -14,9 +14,8 @@ public class CartItemRepository {
     private static final String KEY = "cart_item";
     private final RedisTemplate<String, CartItem> redisTemplate;
 
-    public boolean save(CartItem cartItem) {
+    public void save(CartItem cartItem) {
         redisTemplate.opsForHash().put(KEY, cartItem.getId(), cartItem);
-        return true;
     }
 
     public List<CartItem> findAllByUserId(Long userId) {
