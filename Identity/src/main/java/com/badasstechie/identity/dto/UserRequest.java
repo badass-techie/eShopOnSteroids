@@ -1,7 +1,7 @@
 package com.badasstechie.identity.dto;
 
-public record SignupRequest(
-        String username,
+public record UserRequest(
+        String name,
         String email,
         String password,
         String bio,

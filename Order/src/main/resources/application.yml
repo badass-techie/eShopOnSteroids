@@ -13,7 +13,7 @@ spring:
     password: '0000'
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false # disable logging of sql statements
     properties:
       hibernate:

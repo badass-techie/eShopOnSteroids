@@ -25,22 +25,22 @@ spring:
         - id: Product
           uri: lb://product
           predicates:
-            - Path=/api/v*/product
+            - Path=/api/v*/product/**
 
         - id: Order
           uri: lb://order
           predicates:
-            - Path=/api/v*/order
+            - Path=/api/v*/order/**
 
         - id: Identity
           uri: lb://identity
           predicates:
-            - Path=/api/v*/identity
+            - Path=/api/v*/identity/{segment}/**
 
         - id: Cart
           uri: lb://cart
           predicates:
-            - Path=/api/v*/cart
+            - Path=/api/v*/cart/**
 
         - id: DiscoveryServer
           uri: http://localhost:8761

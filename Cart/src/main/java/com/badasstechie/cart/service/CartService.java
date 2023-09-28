@@ -24,7 +24,7 @@ public class CartService {
             cartItem.getUserId(),
             cartItem.getProductId(),
             cartItem.getProductName(),
-            cartItem.getProductImage(),
+            "/api/v1/product/" + cartItem.getProductId() + "/image",
             cartItem.getUnitPrice(),
             cartItem.getQuantity()
         );
@@ -36,7 +36,6 @@ public class CartService {
                         .userId(cartItemRequest.userId())
                         .productId(cartItemRequest.productId())
                         .productName(cartItemRequest.productName())
-                        .productImage(cartItemRequest.productImage())
                         .unitPrice(cartItemRequest.unitPrice())
                         .quantity(cartItemRequest.quantity())
                         .build();

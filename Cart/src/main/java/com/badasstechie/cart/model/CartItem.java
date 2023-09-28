@@ -18,8 +18,6 @@ public class CartItem implements Serializable {
     private Long userId;
     private String productId;
     private String productName;
-    private String productImage;
     private BigDecimal unitPrice;
     private Integer quantity;
-    // TODO: String productImage
 }

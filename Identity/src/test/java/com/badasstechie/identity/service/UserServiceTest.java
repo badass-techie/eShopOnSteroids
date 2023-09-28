@@ -1,6 +1,7 @@
 package com.badasstechie.identity.service;
 
-import com.badasstechie.identity.dto.SignupRequest;
+import com.badasstechie.identity.dto.AuthRequest;
+import com.badasstechie.identity.dto.UserRequest;
 import com.badasstechie.identity.dto.UserResponse;
 import com.badasstechie.identity.model.User;
 import com.badasstechie.identity.model.UserRole;
@@ -35,7 +36,7 @@ public class UserServiceTest {
     void setUp() {
         user = User.builder()
                 .id(1L)
-                .username("testuser")
+                .name("testuser")
                 .email("testuser@example.com")
                 .password("password")
                 .bio("test bio")
@@ -48,8 +49,8 @@ public class UserServiceTest {
 
     @Test
     void testSignup() {
-        SignupRequest signupRequest = new SignupRequest(
-                user.getUsername(),
+        UserRequest userRequest = new UserRequest(
+                user.getName(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getBio(),
@@ -59,7 +60,7 @@ public class UserServiceTest {
 
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        ResponseEntity<UserResponse> response = userService.signup(signupRequest);
+        ResponseEntity<UserResponse> response = userService.createUser(userRequest);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(userService.mapUserToResponse(user), response.getBody());
@@ -76,11 +77,12 @@ public class UserServiceTest {
 
     @Test
     void testDeactivateUser() {
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(user));
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(java.util.Optional.ofNullable(user));
 
-        ResponseEntity<String> response = userService.deactivateUser(1L);
+        AuthRequest authRequest = new AuthRequest(user.getEmail(), user.getPassword());
+        ResponseEntity<String> response = userService.deactivateUser(authRequest);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertFalse(user.isActive());
     }
 }

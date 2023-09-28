@@ -5,7 +5,13 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -17,19 +23,20 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Builder
 @Entity
 @Table(name = "user_table") // user is a reserved word in PostgreSQL
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Username is required")
-    private String username;
+    private String name;
 
+    @Column(unique = true)
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;
 
     @NotBlank(message = "Password is required")
+    @Getter(AccessLevel.NONE)   // Don't generate getter for password
     private String password;
 
     @Lob
@@ -46,5 +53,40 @@ public class User {
     private Instant created;
 
     private boolean active;
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
+    }
 }
 
