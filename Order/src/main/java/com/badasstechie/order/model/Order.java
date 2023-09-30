@@ -22,6 +22,9 @@ public class Order {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
+    @NotBlank(message = "User id is required")
+    private Long userId;
+
     @NotBlank(message = "Order number is required")
     private String orderNumber;
 

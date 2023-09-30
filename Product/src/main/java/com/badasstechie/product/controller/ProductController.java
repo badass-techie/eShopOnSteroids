@@ -15,8 +15,8 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
-        return productService.createProduct(productRequest);
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest, @RequestParam(name="userId") Long userId) {
+        return productService.createProduct(productRequest, userId);
     }
 
     @GetMapping("/{id}")

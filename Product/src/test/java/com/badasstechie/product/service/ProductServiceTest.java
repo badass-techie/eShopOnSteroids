@@ -65,7 +65,7 @@ public class ProductServiceTest {
         when(productRepository.save(any())).thenReturn(product1);    // mock the repository call to return the product we have created
 
         ProductRequest productRequest = new ProductRequest(product1.getName(), "Description", "Image", product1.getPrice(), "Category", "BrandId", 10);
-        ResponseEntity<ProductResponse> response = productService.createProduct(productRequest);
+        ResponseEntity<ProductResponse> response = productService.createProduct(productRequest, 1L);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(product1.getName(), response.getBody().name());

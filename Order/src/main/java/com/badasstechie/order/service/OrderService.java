@@ -30,6 +30,7 @@ public class OrderService {
     private OrderResponse mapOrderToResponse(Order order) {
         return new OrderResponse(
                 order.getId(),
+                order.getUserId(),
                 order.getOrderNumber(),
                 order.getItems().stream().map(this::mapOrderItemToDto).toList(),
                 order.getDeliveryAddress(),
@@ -56,7 +57,7 @@ public class OrderService {
         );
     }
 
-    public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
         // check if stock for each product is enough
         ProductStockDto[] stocks = webClientBuilder
                 .build()
@@ -79,6 +80,7 @@ public class OrderService {
         // place order
         Order order = orderRepository.save(
                 Order.builder()
+                        .userId(userId)
                         .orderNumber(UUID.randomUUID().toString())
                         .items(orderRequest.items().stream().map(this::mapDtoToOrderItem).toList())
                         .status(OrderStatus.CREATED)

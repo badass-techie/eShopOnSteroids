@@ -10,6 +10,5 @@ public record UserResponse(
         String image,
         String role,
         Instant created,
-        boolean active
-) {
+        boolean active) {
 }

@@ -34,11 +34,11 @@ public class AuthService {
             String scope = authObject.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                     .collect(Collectors.joining(" "));
 
-            Pair<String, Instant> jwtAndExpiration = jwtService.generateToken(scope);
-
             Optional<User> user = userRepository.findByEmail(authRequest.email());
             if (user.isEmpty())
                 throw new RuntimeException("User not found");
+
+            Pair<String, Instant> jwtAndExpiration = jwtService.generateToken(user.get().getId(), scope);
 
             return new AuthResponse(
                     authRequest.email(),
@@ -61,7 +61,7 @@ public class AuthService {
         String scope = user.get().getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
 
-        Pair<String, Instant> jwtAndExpiration = jwtService.generateToken(scope);
+        Pair<String, Instant> jwtAndExpiration = jwtService.generateToken(user.get().getId(), scope);
         return new AuthResponse(
                 email,
                 jwtAndExpiration.first,

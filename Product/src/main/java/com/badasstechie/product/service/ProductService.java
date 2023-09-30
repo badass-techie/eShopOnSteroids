@@ -25,6 +25,7 @@ public class ProductService {
     private ProductResponse mapProductToResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
+                product.getStoreId(),
                 product.getName(),
                 product.getDescription(),
                 new String(product.getImage() != null ? product.getImage() : new byte[0]),
@@ -45,8 +46,10 @@ public class ProductService {
         );
     }
 
-    public ResponseEntity<ProductResponse> createProduct(ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> createProduct(ProductRequest productRequest, Long storeId) {
+        // TODO: create product and brand in one go
         Product product = Product.builder()
+                .storeId(storeId)
                 .name(productRequest.name())
                 .description(productRequest.description())
                 .image(productRequest.image().getBytes())

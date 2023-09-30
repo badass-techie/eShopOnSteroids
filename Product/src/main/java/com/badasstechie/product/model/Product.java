@@ -23,6 +23,8 @@ public class Product {
     @Id
     private String id;
 
+    private Long storeId;
+
     @NotBlank(message = "Name is required")
     private String name;
 

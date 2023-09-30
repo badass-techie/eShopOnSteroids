@@ -16,8 +16,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest orderRequest){
-        return orderService.placeOrder(orderRequest);
+    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest orderRequest, @RequestParam(name="userId") Long userId){
+        return orderService.placeOrder(orderRequest, userId);
     }
 
     @GetMapping("/{id}")

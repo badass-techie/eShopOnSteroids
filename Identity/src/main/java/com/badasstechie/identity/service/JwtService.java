@@ -25,13 +25,14 @@ public class JwtService {
      * @param scope the roles of the user
      * @return Pair<> of token and expiration time
      */
-    public Pair<String, Instant> generateToken(String scope) {
+    public Pair<String, Instant> generateToken(Long userId, String scope) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(5, ChronoUnit.HOURS))  // TODO: Change this to 5 minutes
+                .expiresAt(now.plus(500, ChronoUnit.HOURS))  // TODO: Change this to 5 minutes
+                .subject(userId.toString())
                 .claim("scope", scope)
                 .build();
 

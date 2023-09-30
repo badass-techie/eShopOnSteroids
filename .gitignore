@@ -4,6 +4,13 @@ target/
 !**/src/test/**/target/
 ignore/
 
+### Sensitive files ###
+*.env
+*.pem
+*.pepk
+*.cer
+*.key
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

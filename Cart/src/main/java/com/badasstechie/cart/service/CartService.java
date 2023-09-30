@@ -30,10 +30,10 @@ public class CartService {
         );
     }
 
-    public ResponseEntity<CartItemResponse> addToCart(CartItemRequest cartItemRequest) {
+    public ResponseEntity<CartItemResponse> addToCart(CartItemRequest cartItemRequest, Long userId) {
         CartItem cartItem = CartItem.builder()
                         .id(UUID.randomUUID().toString())
-                        .userId(cartItemRequest.userId())
+                        .userId(userId)
                         .productId(cartItemRequest.productId())
                         .productName(cartItemRequest.productName())
                         .unitPrice(cartItemRequest.unitPrice())

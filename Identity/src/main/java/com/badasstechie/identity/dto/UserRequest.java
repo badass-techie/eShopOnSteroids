@@ -6,6 +6,5 @@ public record UserRequest(
         String password,
         String bio,
         String image,
-        String role
-        ) {
+        String role) {
 }

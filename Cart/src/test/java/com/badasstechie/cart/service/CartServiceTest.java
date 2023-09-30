@@ -34,21 +34,19 @@ public class CartServiceTest {
 
     @BeforeEach
     void setup() {
-        cartItem1 = new CartItem("id1", 5L, "product1", "Product 1", "image1", BigDecimal.valueOf(10), 1);
-        cartItem2 = new CartItem("id2", 6L, "product2", "Product 2", "image2", BigDecimal.valueOf(20), 2);
+        cartItem1 = new CartItem("id1", 5L, "product1", "Product 1", BigDecimal.valueOf(10), 1);
+        cartItem2 = new CartItem("id2", 6L, "product2", "Product 2", BigDecimal.valueOf(20), 2);
         cartItems = List.of(cartItem1, cartItem2);
-        cartItemRequest = new CartItemRequest(cartItem1.getUserId(), cartItem1.getProductId(), cartItem1.getProductName(), cartItem1.getProductImage(), cartItem1.getUnitPrice(), cartItem1.getQuantity());
+        cartItemRequest = new CartItemRequest(cartItem1.getProductId(), cartItem1.getProductName(), cartItem1.getUnitPrice(), cartItem1.getQuantity());
     }
 
     @Test
     void testAddToCart() {
-        ResponseEntity<CartItemResponse> response = cartService.addToCart(cartItemRequest);
+        ResponseEntity<CartItemResponse> response = cartService.addToCart(cartItemRequest, 1L);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(cartItemRequest.userId(), response.getBody().userId());
         assertEquals(cartItemRequest.productId(), response.getBody().productId());
         assertEquals(cartItemRequest.productName(), response.getBody().productName());
-        assertEquals(cartItemRequest.productImage(), response.getBody().productImage());
         assertEquals(cartItemRequest.unitPrice(), response.getBody().unitPrice());
         assertEquals(cartItemRequest.quantity(), response.getBody().quantity());
     }
