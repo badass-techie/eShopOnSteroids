@@ -14,18 +14,30 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -59,6 +71,7 @@ public class UserServiceTest {
         );
 
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(passwordEncoder.encode(userRequest.password())).thenReturn(user.getPassword());
 
         ResponseEntity<UserResponse> response = userService.createUser(userRequest);
 
@@ -78,6 +91,8 @@ public class UserServiceTest {
     @Test
     void testDeactivateUser() {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(java.util.Optional.ofNullable(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        doNothing().when(refreshTokenService).deleteRefreshTokensByUser(any());
 
         AuthRequest authRequest = new AuthRequest(user.getEmail(), user.getPassword());
         ResponseEntity<String> response = userService.deactivateUser(authRequest);

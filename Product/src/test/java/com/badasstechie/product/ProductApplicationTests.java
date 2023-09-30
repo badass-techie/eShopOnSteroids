@@ -1,8 +1,6 @@
 package com.badasstechie.product;
 
-import com.badasstechie.product.dto.BrandRequest;
 import com.badasstechie.product.dto.ProductRequest;
-import com.badasstechie.product.repository.BrandRepository;
 import com.badasstechie.product.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -40,9 +37,6 @@ class ProductApplicationTests {
 	@Autowired
 	private ProductRepository productRepository;
 
-	@Autowired
-	private BrandRepository brandRepository;
-
 	/**
 	 * Set the properties for the MongoDB connection
 	 */
@@ -52,32 +46,20 @@ class ProductApplicationTests {
 	}
 
 	@Test
-	void shouldCreateBrandAndProduct() throws Exception {
-		BrandRequest brandRequest = new BrandRequest(
-				"Test Brand",
-				"Test Brand Image"
-		);
-
-		MvcResult brand = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product/brand")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(brandRequest)))
-				.andExpect(status().isCreated())
-				.andReturn();
-
-		String brandId = objectMapper.readTree(brand.getResponse().getContentAsString()).get("id").asText();
-
+	void shouldCreateProduct() throws Exception {
 		ProductRequest productRequest = new ProductRequest(
 				"Test Product",
 				"Test Product Description",
 				"Test Product Image",
 				BigDecimal.valueOf(100.00),
 				"Test Product Category",
-				brandId,
+				"Test Brand",
+				"Test Brand Image",
 				10
 		);
 
 		// Response should be 201 CREATED
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product")
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product?userId=1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(productRequest)))
 				.andExpect(status().isCreated());
@@ -90,6 +72,5 @@ class ProductApplicationTests {
 	public void cleanup() {
 		// Clean up resources after each test
 		productRepository.deleteAll();
-		brandRepository.deleteAll();
 	}
 }

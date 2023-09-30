@@ -64,7 +64,7 @@ public class ProductServiceTest {
         when(brandRepository.findById(any())).thenReturn(java.util.Optional.of(brand1));   // mock the repository call to return the brand we have created
         when(productRepository.save(any())).thenReturn(product1);    // mock the repository call to return the product we have created
 
-        ProductRequest productRequest = new ProductRequest(product1.getName(), "Description", "Image", product1.getPrice(), "Category", "BrandName", "", 10);
+        ProductRequest productRequest = new ProductRequest(product1.getName(), "Description", "Image", product1.getPrice(), "Category", brand1.getName(), "", 10);
         ResponseEntity<ProductResponse> response = productService.createProduct(productRequest, 1L);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -168,8 +168,8 @@ public class ProductServiceTest {
     void getProductStocks() {
         // Given
         // A list of products that correspond to the ids
-        List<String> ids = List.of("12", "34");
         List<Product> products = List.of(product1, product2);
+        List<String> ids = products.stream().map(Product::getId).toList();
         List<ProductStockDto> stocks = List.of(
                 new ProductStockDto(product1.getId(), product1.getStock()),
                 new ProductStockDto(product2.getId(), product2.getStock())
@@ -181,7 +181,10 @@ public class ProductServiceTest {
 
         // Then
         // The getProductStocks method should return a list of product stock dtos that match the products
-        assertEquals(stocks, productService.getProductStocks(ids));
+        assertEquals(stocks.get(0).getId(), productService.getProductStocks(ids).get(0).getId());
+        assertEquals(stocks.get(0).getStock(), productService.getProductStocks(ids).get(0).getStock());
+        assertEquals(stocks.get(1).getId(), productService.getProductStocks(ids).get(1).getId());
+        assertEquals(stocks.get(1).getStock(), productService.getProductStocks(ids).get(1).getStock());
     }
 
     @Test
