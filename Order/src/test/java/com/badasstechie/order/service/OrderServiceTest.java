@@ -39,7 +39,7 @@ public class OrderServiceTest {
     @BeforeEach
     void setUp() {
         OrderItem orderItem = new OrderItem(1L, "1", "Product 1", BigDecimal.valueOf(10), 1);
-        order = new Order(1L, "Order 1", List.of(orderItem), OrderStatus.CREATED, "Address 1", Instant.now());
+        order = new Order(1L, 1L, "Order 1", List.of(orderItem), OrderStatus.CREATED, "Address 1", Instant.now());
         OrderItemDto orderItemDto = new OrderItemDto(orderItem.getProductId(), orderItem.getProductName(), orderItem.getUnitPrice(), orderItem.getQuantity());
         orderRequest = new OrderRequest(List.of(orderItemDto), "Address 1");
     }
