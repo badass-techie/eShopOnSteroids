@@ -64,7 +64,7 @@ public class ProductServiceTest {
         when(brandRepository.findById(any())).thenReturn(java.util.Optional.of(brand1));   // mock the repository call to return the brand we have created
         when(productRepository.save(any())).thenReturn(product1);    // mock the repository call to return the product we have created
 
-        ProductRequest productRequest = new ProductRequest(product1.getName(), "Description", "Image", product1.getPrice(), "Category", "BrandId", 10);
+        ProductRequest productRequest = new ProductRequest(product1.getName(), "Description", "Image", product1.getPrice(), "Category", "BrandName", "", 10);
         ResponseEntity<ProductResponse> response = productService.createProduct(productRequest, 1L);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -106,17 +106,6 @@ public class ProductServiceTest {
 
         assertEquals(product1.getName(), response.name());
         assertEquals(BigDecimal.valueOf(10), response.price());
-    }
-
-    @Test
-    void testAddBrand() {
-        when(brandRepository.save(any())).thenReturn(brand1);
-
-        BrandRequest brandRequest = new BrandRequest(brand1.getName(), "Image");
-        ResponseEntity<BrandResponse> response = productService.addBrand(brandRequest);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(brand1.getName(), response.getBody().name());
     }
 
     @Test

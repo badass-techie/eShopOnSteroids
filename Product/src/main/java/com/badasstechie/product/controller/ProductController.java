@@ -44,11 +44,6 @@ public class ProductController {
         return productService.setProductStocks(stocks);
     }
 
-    @PostMapping("/brand")
-    public ResponseEntity<BrandResponse> addBrand(@RequestBody BrandRequest brandRequest) {
-        return productService.addBrand(brandRequest);
-    }
-
     @GetMapping("/brand/{id}")
     public BrandResponse getBrand(@PathVariable String id) {
         return productService.getBrand(id);

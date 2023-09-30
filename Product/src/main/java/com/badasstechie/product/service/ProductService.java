@@ -47,7 +47,19 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductResponse> createProduct(ProductRequest productRequest, Long storeId) {
-        // TODO: create product and brand in one go
+        // create brand if not found
+        Brand brand = brandRepository.findByName(productRequest.brandName())
+                .orElseGet(() -> {
+                    Brand newBrand = Brand.builder()
+                            .name(productRequest.brandName())
+                            .image(productRequest.brandImage().getBytes())
+                            .build();
+
+                    brandRepository.save(newBrand);
+
+                    return newBrand;
+                });
+
         Product product = Product.builder()
                 .storeId(storeId)
                 .name(productRequest.name())
@@ -55,7 +67,7 @@ public class ProductService {
                 .image(productRequest.image().getBytes())
                 .price(productRequest.price())
                 .category(productRequest.category())
-                .brand(brandRepository.findById(productRequest.brandId())
+                .brand(brandRepository.findById(brand.getId())
                         .orElseThrow(() -> new RuntimeException("Brand not found")))
                 .stock(productRequest.stock())
                 .created(Instant.now())
@@ -79,17 +91,6 @@ public class ProductService {
                 .stream()
                 .map(this::mapProductToResponse)
                 .toList();
-    }
-
-    public ResponseEntity<BrandResponse> addBrand(BrandRequest brandRequest) {
-        Brand brand = Brand.builder()
-                .name(brandRequest.name())
-                .image(brandRequest.image().getBytes())
-                .build();
-
-        brandRepository.save(brand);
-
-        return new ResponseEntity<>(mapBrandToResponse(brand), HttpStatus.CREATED);
     }
 
     public BrandResponse getBrand(String id) {
