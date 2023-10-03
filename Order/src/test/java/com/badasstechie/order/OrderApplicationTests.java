@@ -53,8 +53,8 @@ class OrderApplicationTests {
 	void shouldPlaceOrder() throws Exception {
 		OrderRequest orderRequest = new OrderRequest(
 				List.of(
-						new OrderItemDto("1", "One", BigDecimal.valueOf(100), 5),
-						new OrderItemDto("2", "Two", BigDecimal.valueOf(200), 5)
+						new OrderItemDto("1", "One", "", BigDecimal.valueOf(100), 5),
+						new OrderItemDto("2", "Two", "", BigDecimal.valueOf(200), 5)
 				),
 				"McTesty Square, 1, 12345, TestVille"
 		);

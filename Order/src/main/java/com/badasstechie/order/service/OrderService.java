@@ -52,6 +52,7 @@ public class OrderService {
         return new OrderItemDto(
                 orderItem.getProductId(),
                 orderItem.getProductName(),
+                "/api/v1/product/" + orderItem.getProductId() + "/image",
                 orderItem.getUnitPrice(),
                 orderItem.getQuantity()
         );
