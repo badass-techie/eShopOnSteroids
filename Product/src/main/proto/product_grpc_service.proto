@@ -1,0 +1,20 @@
+syntax = "proto3";
+option java_multiple_files = true;  // generate a separate .java file for each top-level message
+package com.badasstechie.product.grpc;  // package name used for generated sources
+
+service ProductGrpcService {
+  rpc getProductStocks (ProductStocksRequest) returns (ProductStocksResponse) {}
+}
+
+message ProductStocksRequest {
+  repeated string ids = 1;
+}
+
+message ProductStocksResponse {
+  repeated ProductStock stocks = 1;
+}
+
+message ProductStock {
+  string id = 1;
+  int32 stock = 2;
+}

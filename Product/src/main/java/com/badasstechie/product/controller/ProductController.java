@@ -34,13 +34,8 @@ public class ProductController {
         return productService.getProduct(id).image();
     }
 
-    @GetMapping("/stocks")
-    public List<ProductStockDto> getProductStocks(@RequestParam List<String> ids) {
-        return productService.getProductStocks(ids);
-    }
-
     @PostMapping("/stocks")
-    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockDto> stocks) {
+    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockRequest> stocks) {
         return productService.setProductStocks(stocks);
     }
 

@@ -165,36 +165,13 @@ public class ProductServiceTest {
     }
 
     @Test
-    void getProductStocks() {
-        // Given
-        // A list of products that correspond to the ids
-        List<Product> products = List.of(product1, product2);
-        List<String> ids = products.stream().map(Product::getId).toList();
-        List<ProductStockDto> stocks = List.of(
-                new ProductStockDto(product1.getId(), product1.getStock()),
-                new ProductStockDto(product2.getId(), product2.getStock())
-        );
-
-        // When
-        // The product repository is stubbed to return the products when findAllById is called with the ids
-        when(productRepository.findAllById(ids)).thenReturn(products);
-
-        // Then
-        // The getProductStocks method should return a list of product stock dtos that match the products
-        assertEquals(stocks.get(0).getId(), productService.getProductStocks(ids).get(0).getId());
-        assertEquals(stocks.get(0).getStock(), productService.getProductStocks(ids).get(0).getStock());
-        assertEquals(stocks.get(1).getId(), productService.getProductStocks(ids).get(1).getId());
-        assertEquals(stocks.get(1).getStock(), productService.getProductStocks(ids).get(1).getStock());
-    }
-
-    @Test
     void setProductStocks() {
         // Given
         // A list of products that correspond to the stocks
         List<Product> products = List.of(product1, product2);
-        List<ProductStockDto> stocks = List.of(
-                new ProductStockDto(product1.getId(), product1.getStock()),
-                new ProductStockDto(product2.getId(), product2.getStock())
+        List<ProductStockRequest> stocks = List.of(
+                new ProductStockRequest(product1.getId(), product1.getStock()),
+                new ProductStockRequest(product2.getId(), product2.getStock())
         );
 
         // When
@@ -208,7 +185,7 @@ public class ProductServiceTest {
         assertEquals(new ResponseEntity<>("Stocks updated", HttpStatus.OK), productService.setProductStocks(stocks));
         verify(productRepository).saveAll(products);    // verify that the saveAll method is called with the products
         for (Product product : products) {
-            assertEquals(product.getStock(), stocks.stream().filter(stock -> stock.getId().equals(product.getId())).findFirst().get().getStock());
+            assertEquals(product.getStock(), stocks.stream().filter(stock -> stock.id().equals(product.getId())).findFirst().get().stock());
         }
     }
 }

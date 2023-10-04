@@ -10,11 +10,9 @@ import com.badasstechie.order.model.OrderStatus;
 import com.badasstechie.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -66,7 +64,7 @@ public class OrderService {
                 .uri("http://product/api/v1/product/stocks",
                         uriBuilder -> uriBuilder.queryParam("ids", orderRequest.items().stream().map(OrderItemDto::productId).toList()).build())
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while checking stock")))
+                .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Error while checking stock")))
                 .bodyToMono(ProductStockDto[].class)
                 .block();
 
@@ -97,7 +95,7 @@ public class OrderService {
                 .uri("http://product/api/v1/product/stocks")
                 .bodyValue(stocks)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> Mono.error(new RuntimeException("Error while updating stock")))
+                .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Error while updating stock")))
                 .bodyToMono(String.class)
                 .block();
 

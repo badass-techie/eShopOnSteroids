@@ -47,3 +47,13 @@ spring:
           uri: http://localhost:8761
           predicates:
             - Path=/eureka/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE

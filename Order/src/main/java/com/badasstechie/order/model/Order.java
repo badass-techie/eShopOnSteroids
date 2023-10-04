@@ -1,13 +1,13 @@
 package com.badasstechie.order.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PastOrPresent;
 import lombok.*;
 import java.time.Instant;
 import java.util.List;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Setter
 @Getter

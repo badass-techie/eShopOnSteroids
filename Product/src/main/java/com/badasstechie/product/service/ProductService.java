@@ -120,22 +120,15 @@ public class ProductService {
                 .toList();
     }
 
-    public List<ProductStockDto> getProductStocks(List<String> ids) {
-        return productRepository.findAllById(ids)
-                .stream()
-                .map(product -> new ProductStockDto(product.getId(), product.getStock()))
-                .toList();
-    }
-
-    public ResponseEntity<String> setProductStocks(List<ProductStockDto> stocks) {
+    public ResponseEntity<String> setProductStocks(List<ProductStockRequest> stocks) {
         List<Product> products = new ArrayList<>();
-        for (ProductStockDto stock : stocks) {
-            Optional<Product> productOptional = productRepository.findById(stock.getId());
+        for (ProductStockRequest stock : stocks) {
+            Optional<Product> productOptional = productRepository.findById(stock.id());
             if (productOptional.isEmpty())
-                return new ResponseEntity<>("Product " + stock.getId() + " not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Product " + stock.id() + " not found", HttpStatus.NOT_FOUND);
 
             Product product = productOptional.get();
-            product.setStock(stock.getStock());
+            product.setStock(stock.stock());
             products.add(product);
         }
 

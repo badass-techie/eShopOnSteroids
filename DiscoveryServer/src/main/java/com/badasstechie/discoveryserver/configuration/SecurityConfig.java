@@ -32,26 +32,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( auth -> auth
-                        .requestMatchers("/").hasRole("ADMIN")  // require role ADMIN for dashboard
-                        .requestMatchers("/eureka/**").permitAll()  // permit access to service registry
+                        .antMatchers("/").hasRole("ADMIN")  // require role ADMIN for dashboard
+                        .antMatchers("/eureka/**").permitAll()  // permit access to service registry
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults())
                 .build();
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "content-type"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
     @Bean

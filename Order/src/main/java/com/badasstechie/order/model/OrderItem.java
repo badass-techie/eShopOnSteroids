@@ -1,14 +1,14 @@
 package com.badasstechie.order.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Setter
 @Getter
