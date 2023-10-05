@@ -3,17 +3,20 @@ package com.badasstechie.order.service;
 import com.badasstechie.order.dto.OrderItemDto;
 import com.badasstechie.order.dto.OrderRequest;
 import com.badasstechie.order.dto.OrderResponse;
-import com.badasstechie.order.dto.ProductStockDto;
+import com.badasstechie.order.dto.ProductStockResponse;
 import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
 import com.badasstechie.order.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
+import com.badasstechie.product.grpc.ProductGrpcServiceGrpc;
+import com.badasstechie.product.grpc.ProductStocksRequest;
+import com.badasstechie.product.grpc.ProductStocksResponse;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,10 +24,18 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
     public final WebClient.Builder webClientBuilder;
+
+    @GrpcClient("product-grpc-service")
+    private ProductGrpcServiceGrpc.ProductGrpcServiceBlockingStub productGrpcService;
+
+    @Autowired
+    public OrderService(OrderRepository orderRepository, WebClient.Builder webClientBuilder) {
+        this.orderRepository = orderRepository;
+        this.webClientBuilder = webClientBuilder;
+    }
 
     private OrderResponse mapOrderToResponse(Order order) {
         return new OrderResponse(
@@ -59,23 +70,18 @@ public class OrderService {
     }
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
-        // check if stock for each product is enough
-        ProductStockDto[] stocks = webClientBuilder
-                .build()
-                .get()
-                .uri("http://product/api/v1/product/stocks",
-                        uriBuilder -> uriBuilder.queryParam("ids", orderRequest.items().stream().map(OrderItemDto::productId).toList()).build())
-                .retrieve()
-                .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Error while checking stock")))
-                .bodyToMono(ProductStockDto[].class)
-                .block();
+        // call grpc service to get product stocks
+        ProductStocksResponse response = productGrpcService.getProductStocks(
+                ProductStocksRequest.newBuilder().addAllIds(orderRequest.items().stream().map(OrderItemDto::productId).toList()).build());
 
-        for(int i = 0; i < orderRequest.items().size(); i++) {
-            if (stocks[i].getStock() < orderRequest.items().get(i).quantity()) {
+        List<ProductStockResponse> stocks = response.getStocksList().stream()
+                .map(stock -> new ProductStockResponse(stock.getId(), stock.getStock()))
+                .toList();
+
+        // throw exception if stock of any product is not enough
+        for(int i = 0; i < orderRequest.items().size(); ++i) {
+            if (stocks.get(i).stock() < orderRequest.items().get(i).quantity())
                 throw new RuntimeException("Product " + orderRequest.items().get(i).productId() + " stock is not enough");
-            } else {
-                stocks[i].setStock(stocks[i].getStock() - orderRequest.items().get(i).quantity());
-            }
         }
 
         // place order
@@ -90,16 +96,7 @@ public class OrderService {
                         .build()
         );
 
-        // update stocks
-        webClientBuilder
-                .build()
-                .post()
-                .uri("http://product/api/v1/product/stocks")
-                .bodyValue(stocks)
-                .retrieve()
-                .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Error while updating stock")))
-                .bodyToMono(String.class)
-                .block();
+        // TODO: publish message to message bus that order is created
 
         return new ResponseEntity<>(mapOrderToResponse(order), HttpStatus.CREATED);
     }

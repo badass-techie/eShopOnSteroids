@@ -24,3 +24,11 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
+
+grpc:
+  client:
+    product-grpc-service:
+      address: 'discovery:///product'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

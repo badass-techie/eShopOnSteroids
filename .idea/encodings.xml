@@ -8,6 +8,8 @@
     <file url="file://$PROJECT_DIR$/Identity/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Identity/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Order/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Order/target/generated-sources/protobuf/grpc-java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Order/target/generated-sources/protobuf/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Product/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />

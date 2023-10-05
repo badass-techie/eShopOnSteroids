@@ -46,12 +46,12 @@ public class OrderServiceTest {
 
     @Test
     void testPlaceOrder() {
-//        when(orderRepository.save(any(Order.class))).thenReturn(order);
-//
-//        ResponseEntity<OrderResponse> response = orderService.placeOrder(orderRequest);
-//
-//        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-//        assertEquals(1L, response.getBody().id());
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        ResponseEntity<OrderResponse> response = orderService.placeOrder(orderRequest, 1L);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(1L, response.getBody().id());
     }
 
     @Test
