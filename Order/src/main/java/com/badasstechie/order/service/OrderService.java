@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class OrderService {
                 order.getUserId(),
                 order.getOrderNumber(),
                 order.getItems().stream().map(this::mapOrderItemToDto).toList(),
+                order.getItems().stream().map(OrderItem::getUnitPrice).reduce(BigDecimal.ZERO, BigDecimal::add),
                 order.getDeliveryAddress(),
                 order.getStatus().name(),
                 order.getCreated().toString()

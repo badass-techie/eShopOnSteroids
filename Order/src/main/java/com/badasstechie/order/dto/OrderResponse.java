@@ -1,5 +1,6 @@
 package com.badasstechie.order.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record OrderResponse(
@@ -7,6 +8,7 @@ public record OrderResponse(
         Long userId,
         String orderNumber,
         List<OrderItemDto> items,
+        BigDecimal totalCost,
         String deliveryAddress,
         String status,
         String created

@@ -1,13 +1,11 @@
 package com.badasstechie.cart.controller;
 
 import com.badasstechie.cart.dto.CartItemRequest;
-import com.badasstechie.cart.dto.CartItemResponse;
+import com.badasstechie.cart.dto.CartResponse;
 import com.badasstechie.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -16,12 +14,12 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity<CartItemResponse> addToCart(@RequestBody CartItemRequest cartItemRequest, @RequestParam(name="userId") Long userId) {
+    public ResponseEntity<CartResponse> addToCart(@RequestBody CartItemRequest cartItemRequest, @RequestParam(name="userId") Long userId) {
         return cartService.addToCart(cartItemRequest, userId);
     }
 
     @GetMapping("/{userId}")
-    public List<CartItemResponse> getCartItems(@PathVariable Long userId) {
+    public CartResponse getCartItems(@PathVariable Long userId) {
         return cartService.getCartItems(userId);
     }
 

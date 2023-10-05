@@ -2,6 +2,7 @@ package com.badasstechie.cart.service;
 
 import com.badasstechie.cart.dto.CartItemRequest;
 import com.badasstechie.cart.dto.CartItemResponse;
+import com.badasstechie.cart.dto.CartResponse;
 import com.badasstechie.cart.model.CartItem;
 import com.badasstechie.cart.repository.CartItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,7 +32,14 @@ public class CartService {
         );
     }
 
-    public ResponseEntity<CartItemResponse> addToCart(CartItemRequest cartItemRequest, Long userId) {
+    public CartResponse mapCartItemsToResponse(List<CartItem> cartItems){
+        return new CartResponse(
+                cartItems.stream().map(this::mapCartItemToResponse).toList(),
+                cartItems.stream().map(CartItem::getUnitPrice).reduce(BigDecimal.ZERO, BigDecimal::add)
+        );
+    }
+
+    public ResponseEntity<CartResponse> addToCart(CartItemRequest cartItemRequest, Long userId) {
         CartItem cartItem = CartItem.builder()
                         .id(UUID.randomUUID().toString())
                         .userId(userId)
@@ -41,14 +50,11 @@ public class CartService {
                         .build();
 
         cartItemRepository.save(cartItem);
-        return new ResponseEntity<>(mapCartItemToResponse(cartItem), HttpStatus.CREATED);
+        return new ResponseEntity<>(getCartItems(userId), HttpStatus.CREATED);
     }
 
-    public List<CartItemResponse> getCartItems(Long userId) {
-        return cartItemRepository.findAllByUserId(userId)
-                .stream()
-                .map(this::mapCartItemToResponse)
-                .collect(Collectors.toList());
+    public CartResponse getCartItems(Long userId) {
+        return mapCartItemsToResponse(cartItemRepository.findAllByUserId(userId));
     }
 
     public ResponseEntity<String> incrementQuantity(String id) {
