@@ -4,7 +4,7 @@ import com.badasstechie.cart.dto.CartItemRequest;
 import com.badasstechie.cart.dto.CartResponse;
 import com.badasstechie.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,27 +14,28 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity<CartResponse> addToCart(@RequestBody CartItemRequest cartItemRequest, @RequestParam(name="userId") Long userId) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CartResponse addToCart(@RequestBody CartItemRequest cartItemRequest, @RequestParam(name="userId") Long userId) {
         return cartService.addToCart(cartItemRequest, userId);
     }
 
-    @GetMapping("/{userId}")
-    public CartResponse getCartItems(@PathVariable Long userId) {
+    @GetMapping
+    public CartResponse getCartItems(@RequestParam(name="userId") Long userId) {
         return cartService.getCartItems(userId);
     }
 
     @GetMapping("/{id}/increment")
-    public ResponseEntity<String> incrementQuantity(@PathVariable String id) {
-        return cartService.incrementQuantity(id);
+    public CartResponse incrementQuantity(@PathVariable String id, @RequestParam(name="userId") Long userId) {
+        return cartService.incrementQuantity(id, userId);
     }
 
     @GetMapping("/{id}/decrement")
-    public ResponseEntity<String> decrementQuantity(@PathVariable String id) {
-        return cartService.decrementQuantity(id);
+    public CartResponse decrementQuantity(@PathVariable String id, @RequestParam(name="userId") Long userId) {
+        return cartService.decrementQuantity(id, userId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable String id) {
-        return cartService.removeFromCart(id);
+    public CartResponse delete(@PathVariable String id, @RequestParam(name="userId") Long userId) {
+        return cartService.removeFromCart(id, userId);
     }
 }

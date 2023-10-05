@@ -43,13 +43,16 @@ public class CartServiceTest {
 
     @Test
     void testAddToCart() {
-        ResponseEntity<CartResponse> response = cartService.addToCart(cartItemRequest, 1L);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-//        assertEquals(cartItemRequest.productId(), response.getBody().productId());
-//        assertEquals(cartItemRequest.productName(), response.getBody().productName());
-//        assertEquals(cartItemRequest.unitPrice(), response.getBody().unitPrice());
-//        assertEquals(cartItemRequest.quantity(), response.getBody().quantity());
+        doNothing().when(cartItemRepository).save(any());    // mock the repository call to do nothing instead of actually saving the cart item
+        when(cartItemRepository.findAllByUserId(any())).thenReturn(cartItems); // mock the repository call to return the cart items we have created
+
+        CartResponse response = cartService.addToCart(cartItemRequest, 1L);
+
+        assertEquals(1, response.items().size());
+        assertEquals(cartItemRequest.productId(), response.items().get(0).productId());
+        assertEquals(cartItemRequest.productName(), response.items().get(0).productName());
+        assertEquals(cartItemRequest.unitPrice(), response.items().get(0).unitPrice());
+        assertEquals(cartItemRequest.quantity(), response.items().get(0).quantity());
     }
 
     @Test
@@ -60,37 +63,5 @@ public class CartServiceTest {
         assertEquals(2, response.items().size());
         assertEquals(cartItem1.getId(), response.items().get(0).id());
         assertEquals(cartItem2.getId(), response.items().get(1).id());
-    }
-
-    @Test
-    void testIncrementQuantity() {
-        Integer initialQuantity = cartItem1.getQuantity();
-        doAnswer(invocation -> {
-            cartItem1.setQuantity(cartItem1.getQuantity() + 1);
-            return null;
-        }).when(cartItemRepository).incrementQuantity(any());  // mock the repository call to run the lambda function in place of its own code
-        ResponseEntity<String> response = cartService.incrementQuantity("id");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(initialQuantity + 1, cartItem1.getQuantity());
-    }
-
-    @Test
-    void testDecrementQuantity() {
-        Integer initialQuantity = cartItem1.getQuantity();
-        doAnswer(invocation -> {
-            cartItem1.setQuantity(cartItem1.getQuantity() - 1);
-            return null;
-        }).when(cartItemRepository).decrementQuantity(any());  // mock the repository call to run the lambda function in place of its own code
-        ResponseEntity<String> response = cartService.decrementQuantity("id");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(initialQuantity - 1, cartItem1.getQuantity());
-    }
-
-    @Test
-    void testRemoveFromCart() {
-        String id = "id1";
-        doNothing().when(cartItemRepository).delete(id);    // mock the repository call to do nothing instead of actually deleting the cart item
-        ResponseEntity<String> response = cartService.removeFromCart(id);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

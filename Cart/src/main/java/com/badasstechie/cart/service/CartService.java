@@ -39,7 +39,7 @@ public class CartService {
         );
     }
 
-    public ResponseEntity<CartResponse> addToCart(CartItemRequest cartItemRequest, Long userId) {
+    public CartResponse addToCart(CartItemRequest cartItemRequest, Long userId) {
         CartItem cartItem = CartItem.builder()
                         .id(UUID.randomUUID().toString())
                         .userId(userId)
@@ -50,25 +50,25 @@ public class CartService {
                         .build();
 
         cartItemRepository.save(cartItem);
-        return new ResponseEntity<>(getCartItems(userId), HttpStatus.CREATED);
+        return getCartItems(userId);
     }
 
     public CartResponse getCartItems(Long userId) {
         return mapCartItemsToResponse(cartItemRepository.findAllByUserId(userId));
     }
 
-    public ResponseEntity<String> incrementQuantity(String id) {
+    public CartResponse incrementQuantity(String id, Long userId) {
         cartItemRepository.incrementQuantity(id);
-        return ResponseEntity.ok().build();
+        return getCartItems(userId);
     }
 
-    public ResponseEntity<String> decrementQuantity(String id) {
+    public CartResponse decrementQuantity(String id, Long userId) {
         cartItemRepository.decrementQuantity(id);
-        return ResponseEntity.ok().build();
+        return getCartItems(userId);
     }
 
-    public ResponseEntity<String> removeFromCart(String id) {
+    public CartResponse removeFromCart(String id, Long userId) {
         cartItemRepository.delete(id);
-        return ResponseEntity.ok().build();
+        return getCartItems(userId);
     }
 }
