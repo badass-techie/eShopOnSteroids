@@ -30,25 +30,20 @@ Each microservice stores its data in its own database tailored to its requiremen
 Microservices communicate externally via REST through a secured API Gateway, and internally via
 
 - gRPC for synchronous communication which excels for its performance
-- Message Bus for asynchronous communication in which the receiving microservice is free to handle the message whenever it has the capacity
+- a message bus for asynchronous communication in which the receiving microservice is free to handle the message whenever it has the capacity
 
 Below is a visual representation:
 
 ![Architecture]()
 
 - All microservices are inside a private network and not accessible except through the API Gateway.
-
 - The API Gateway routes requests to the appropriate microservice, and validates the authorization of requests to all microservices except the Identity Microservice.
-
 - The Identity Microservice acts as an Identity Issuer and is responsible for storing users and their roles, and for issuing authorization credentials.
-
 - The Discovery Server registers the locations of each microservice as they may scale horizontally and have multiple instances running.
-
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
-
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Message Bus to receive notifications of new orders and update the stock accordingly.
-
 - The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability of the products in the order pre-checkout, and publishes a message to the Message Bus when an order is placed successfully.
+- The gRPC communication between the microservices is fault-tolerant and resilient to transient failures thanks to Resilience4j Circuit Breaker.
 
 Admin services include:
 
