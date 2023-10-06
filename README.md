@@ -58,7 +58,7 @@ Admin services include:
 Having Docker and Docker Compose installed, run the following command to start the application:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 It will take a few minutes to download the required images and create the containers.
