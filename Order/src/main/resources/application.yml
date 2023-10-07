@@ -1,7 +1,4 @@
 server:
-  error:
-    include-message: always
-    include-binding-errors: always
   port: 0
 
 spring:
@@ -32,3 +29,33 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true # register health indicator to monitor the state of the circuit breaker
+        slidingWindowSize: 10 # number of calls which are used to calculate the error rate
+        minimumNumberOfCalls: 5 # minimum number of calls which are required (per sliding window period) before the CircuitBreaker can calculate the error rate
+        permittedNumberOfCallsInHalfOpenState: 3  # number of permitted calls when the CircuitBreaker is half open
+        automaticTransitionFromOpenToHalfOpenEnabled: true  # if enabled a CircuitBreaker will try to close automatically if the waitDurationInOpenState is over
+        waitDurationInOpenState: 5s # time which a CircuitBreaker should stay open, before it switches to half open
+        failureRateThreshold: 50  # percentage of calls which are allowed to fail
+        eventConsumerBufferSize: 10 # size of the ring buffer used to record the outcome of calls when the CircuitBreaker is closed
+        recordExceptions:
+          - io.grpc.StatusRuntimeException  # record exceptions of type StatusRuntimeException as failures
+    instances:
+      product-grpc-service:
+        baseConfig: default # use default config above

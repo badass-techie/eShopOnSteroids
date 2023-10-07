@@ -11,12 +11,12 @@ import com.badasstechie.order.repository.OrderRepository;
 import com.badasstechie.product.grpc.ProductGrpcServiceGrpc;
 import com.badasstechie.product.grpc.ProductStocksRequest;
 import com.badasstechie.product.grpc.ProductStocksResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,15 +26,13 @@ import java.util.UUID;
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
-    public final WebClient.Builder webClientBuilder;
 
     @GrpcClient("product-grpc-service")
     private ProductGrpcServiceGrpc.ProductGrpcServiceBlockingStub productGrpcService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, WebClient.Builder webClientBuilder) {
+    public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-        this.webClientBuilder = webClientBuilder;
     }
 
     private OrderResponse mapOrderToResponse(Order order) {
@@ -70,13 +68,7 @@ public class OrderService {
     }
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
-        // call grpc service to get product stocks
-        ProductStocksResponse response = productGrpcService.getProductStocks(
-                ProductStocksRequest.newBuilder().addAllIds(orderRequest.items().stream().map(OrderItemDto::productId).toList()).build());
-
-        List<ProductStockResponse> stocks = response.getStocksList().stream()
-                .map(stock -> new ProductStockResponse(stock.getId(), stock.getStock()))
-                .toList();
+        List<ProductStockResponse> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
 
         // throw exception if stock of any product is not enough
         for(int i = 0; i < orderRequest.items().size(); ++i) {
@@ -99,6 +91,17 @@ public class OrderService {
         // TODO: publish message to message bus that order is created
 
         return new ResponseEntity<>(mapOrderToResponse(order), HttpStatus.CREATED);
+    }
+
+    @CircuitBreaker(name = "product-grpc-service")
+    private List<ProductStockResponse> getProductStocks(List<String> ids) {
+        // call grpc service to get product stocks
+        ProductStocksResponse response = productGrpcService.getProductStocks(
+                ProductStocksRequest.newBuilder().addAllIds(ids).build());
+
+        return response.getStocksList().stream()
+                .map(stock -> new ProductStockResponse(stock.getId(), stock.getStock()))
+                .toList();
     }
 
     public OrderResponse getOrder(Long id) {

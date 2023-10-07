@@ -67,6 +67,14 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
         <!-- For working with grpc in java -->
         <dependency>
@@ -105,7 +113,6 @@
             </exclusions>
         </dependency>
     </dependencies>
-
     <build>
         <extensions>
             <!-- For detecting the OS classifier -->
