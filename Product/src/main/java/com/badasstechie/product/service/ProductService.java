@@ -120,6 +120,13 @@ public class ProductService {
                 .toList();
     }
 
+    public List<ProductResponse> getProductsByStore(Long storeId) {
+        return productRepository.findAllByStoreId(storeId)
+                .stream()
+                .map(this::mapProductToResponse)
+                .toList();
+    }
+
     public ResponseEntity<String> setProductStocks(List<ProductStockRequest> stocks) {
         List<Product> products = new ArrayList<>();
         for (ProductStockRequest stock : stocks) {

@@ -34,11 +34,6 @@ public class ProductController {
         return productService.getProduct(id).image();
     }
 
-    @PostMapping("/stocks")
-    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockRequest> stocks) {
-        return productService.setProductStocks(stocks);
-    }
-
     @GetMapping("/brand/{id}")
     public BrandResponse getBrand(@PathVariable String id) {
         return productService.getBrand(id);
@@ -57,5 +52,15 @@ public class ProductController {
     @GetMapping("/category/{category}")
     public List<ProductResponse> getProductsByCategory(@PathVariable String category) {
         return productService.getProductsByCategory(category);
+    }
+
+    @GetMapping("/store/{storeId}")
+    public List<ProductResponse> getProductsByStore(@PathVariable Long storeId) {
+        return productService.getProductsByStore(storeId);
+    }
+
+    @PostMapping("/stocks")
+    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockRequest> stocks) {
+        return productService.setProductStocks(stocks);
     }
 }
