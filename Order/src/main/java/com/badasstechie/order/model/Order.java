@@ -2,6 +2,7 @@ package com.badasstechie.order.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import lombok.*;
 import java.time.Instant;
@@ -22,7 +23,7 @@ public class Order {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @NotBlank(message = "User id is required")
+    @NotNull(message = "User id is required")
     private Long userId;
 
     @NotBlank(message = "Order number is required")
