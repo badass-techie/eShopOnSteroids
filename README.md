@@ -1,6 +1,6 @@
-# eShopOnSteroids 
+<img src="./diagrams/banner.png" alt="eShop logo" title="eShopOnSteroids" align="right" height="60" />
 
-![Logo]()
+# eShopOnSteroids 
 
 eShopOnSteroids is a well-architected, distributed, event-driven server-side e-commerce application powered by the following building blocks of microservices:
 
@@ -34,7 +34,7 @@ Microservices communicate externally via REST through a secured API Gateway, and
 
 Below is a visual representation:
 
-![Architecture]()
+![Architecture](./diagrams/architecture.png)
 
 - All microservices are inside a private network and not accessible except through the API Gateway.
 - The API Gateway routes requests to the appropriate microservice, and validates the authorization of requests to all microservices except the Identity Microservice.
@@ -48,7 +48,9 @@ Below is a visual representation:
 Admin services include:
 
 - Eureka dashboard to monitor the availability and health of microservices
+![Eureka Dashboard](./diagrams/eureka2.png)
 - Zipkin dashboard for tracing requests across microservices
+![Zipkin Dashboard](./diagrams/zipkin.png)
 - Kibana dashboard for viewing logs of microservices
 
 ## Installation
