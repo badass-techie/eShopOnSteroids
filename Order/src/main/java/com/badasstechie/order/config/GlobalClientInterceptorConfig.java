@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
-public class GlobalClientInterceptorConfiguration {
+public class GlobalClientInterceptorConfig {
     protected final CircuitBreakerRegistry circuitBreakerRegistry;
 
     @GrpcGlobalClientInterceptor

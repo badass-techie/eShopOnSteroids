@@ -1,6 +1,6 @@
 package com.badasstechie.product.dto;
 
-public record ProductStockRequest(
+public record ProductStockDto(
         String id,
-        Integer stock
+        Integer quantity
 ) {}

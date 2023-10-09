@@ -169,9 +169,9 @@ public class ProductServiceTest {
         // Given
         // A list of products that correspond to the stocks
         List<Product> products = List.of(product1, product2);
-        List<ProductStockRequest> stocks = List.of(
-                new ProductStockRequest(product1.getId(), product1.getStock()),
-                new ProductStockRequest(product2.getId(), product2.getStock())
+        List<ProductStockDto> stocks = List.of(
+                new ProductStockDto(product1.getId(), product1.getStock()),
+                new ProductStockDto(product2.getId(), product2.getStock())
         );
 
         // When
@@ -181,11 +181,11 @@ public class ProductServiceTest {
         }
 
         // Then
-        // The setProductStocks method should update the stock of each product in the repository and return a success response
+        // The setProductStocks method should update the quantity of each product in the repository and return a success response
         assertEquals(new ResponseEntity<>("Stocks updated", HttpStatus.OK), productService.setProductStocks(stocks));
         verify(productRepository).saveAll(products);    // verify that the saveAll method is called with the products
         for (Product product : products) {
-            assertEquals(product.getStock(), stocks.stream().filter(stock -> stock.id().equals(product.getId())).findFirst().get().stock());
+            assertEquals(product.getStock(), stocks.stream().filter(stock -> stock.id().equals(product.getId())).findFirst().get().quantity());
         }
     }
 }

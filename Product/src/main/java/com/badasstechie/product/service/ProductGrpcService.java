@@ -23,7 +23,7 @@ public class ProductGrpcService extends ProductGrpcServiceGrpc.ProductGrpcServic
         List<Product> products = (List<Product>) productRepository.findAllById(request.getIdsList());
 
         ProductStocksResponse response = products.stream()
-                .map(product -> ProductStock.newBuilder().setId(product.getId()).setStock(product.getStock()).build())
+                .map(product -> ProductStock.newBuilder().setId(product.getId()).setQuantity(product.getStock()).build())
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
                         collected -> ProductStocksResponse.newBuilder().addAllStocks(collected).build()));
 

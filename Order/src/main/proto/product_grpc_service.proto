@@ -16,5 +16,5 @@ message ProductStocksResponse {
 
 message ProductStock {
   string id = 1;
-  int32 stock = 2;
+  int32 quantity = 2;
 }

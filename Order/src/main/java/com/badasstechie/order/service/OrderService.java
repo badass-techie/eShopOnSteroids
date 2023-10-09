@@ -3,7 +3,7 @@ package com.badasstechie.order.service;
 import com.badasstechie.order.dto.OrderItemDto;
 import com.badasstechie.order.dto.OrderRequest;
 import com.badasstechie.order.dto.OrderResponse;
-import com.badasstechie.order.dto.ProductStockResponse;
+import com.badasstechie.order.dto.ProductStockDto;
 import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
@@ -68,11 +68,11 @@ public class OrderService {
     }
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
-        List<ProductStockResponse> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
+        List<ProductStockDto> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
 
         // throw exception if stock of any product is not enough
         for(int i = 0; i < orderRequest.items().size(); ++i) {
-            if (stocks.get(i).stock() < orderRequest.items().get(i).quantity())
+            if (stocks.get(i).quantity() < orderRequest.items().get(i).quantity())
                 throw new RuntimeException("Product " + orderRequest.items().get(i).productId() + " stock is not enough");
         }
 
@@ -94,13 +94,13 @@ public class OrderService {
     }
 
     @CircuitBreaker(name = "product-grpc-service")
-    private List<ProductStockResponse> getProductStocks(List<String> ids) {
+    private List<ProductStockDto> getProductStocks(List<String> ids) {
         // call grpc service to get product stocks
         ProductStocksResponse response = productGrpcService.getProductStocks(
                 ProductStocksRequest.newBuilder().addAllIds(ids).build());
 
         return response.getStocksList().stream()
-                .map(stock -> new ProductStockResponse(stock.getId(), stock.getStock()))
+                .map(stock -> new ProductStockDto(stock.getId(), stock.getQuantity()))
                 .toList();
     }
 

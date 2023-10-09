@@ -127,15 +127,15 @@ public class ProductService {
                 .toList();
     }
 
-    public ResponseEntity<String> setProductStocks(List<ProductStockRequest> stocks) {
+    public ResponseEntity<String> setProductStocks(List<ProductStockDto> stocks) {
         List<Product> products = new ArrayList<>();
-        for (ProductStockRequest stock : stocks) {
+        for (ProductStockDto stock : stocks) {
             Optional<Product> productOptional = productRepository.findById(stock.id());
             if (productOptional.isEmpty())
                 return new ResponseEntity<>("Product " + stock.id() + " not found", HttpStatus.NOT_FOUND);
 
             Product product = productOptional.get();
-            product.setStock(stock.stock());
+            product.setStock(stock.quantity());
             products.add(product);
         }
 

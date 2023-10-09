@@ -60,7 +60,7 @@ public class ProductController {
     }
 
     @PostMapping("/stocks")
-    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockRequest> stocks) {
+    public ResponseEntity<String> setProductStocks(@RequestBody List<ProductStockDto> stocks) {
         return productService.setProductStocks(stocks);
     }
 }
