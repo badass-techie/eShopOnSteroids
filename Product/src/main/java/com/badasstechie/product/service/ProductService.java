@@ -7,6 +7,9 @@ import com.badasstechie.product.repository.BrandRepository;
 import com.badasstechie.product.repository.ProductRepository;
 import com.badasstechie.product.util.Time;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,9 +21,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
+
+    @Value("${message-bus.queue-name}")
+    private String messageBusQueueName;
 
     private ProductResponse mapProductToResponse(Product product) {
         return new ProductResponse(
@@ -130,6 +137,9 @@ public class ProductService {
     public ResponseEntity<String> setProductStocks(List<ProductStockDto> stocks) {
         List<Product> products = new ArrayList<>();
         for (ProductStockDto stock : stocks) {
+            if (stock.quantity() < 0)
+                return new ResponseEntity<>("Stock quantity cannot be negative", HttpStatus.BAD_REQUEST);
+
             Optional<Product> productOptional = productRepository.findById(stock.id());
             if (productOptional.isEmpty())
                 return new ResponseEntity<>("Product " + stock.id() + " not found", HttpStatus.NOT_FOUND);
@@ -142,5 +152,26 @@ public class ProductService {
         productRepository.saveAll(products);
 
         return new ResponseEntity<>("Stocks updated", HttpStatus.OK);
+    }
+
+    @RabbitListener(queues = "${message-bus.queue-name}")
+    public void newOrderListener(List<ProductStockDto> productsOrdered){
+        log.info("Received new order: {}", productsOrdered);
+
+        List<Product> products = new ArrayList<>();
+        for (ProductStockDto productOrdered : productsOrdered) {
+            Optional<Product> productOptional = productRepository.findById(productOrdered.id());
+            if (productOptional.isEmpty())
+                continue;
+
+            Product product = productOptional.get();
+            int newStock = Math.max(product.getStock() - productOrdered.quantity(), 0);
+
+            product.setStock(newStock);
+            products.add(product);
+        }
+
+        productRepository.saveAll(products);
+        log.info("Stocks updated");
     }
 }

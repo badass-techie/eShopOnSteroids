@@ -13,7 +13,9 @@ import com.badasstechie.product.grpc.ProductStocksRequest;
 import com.badasstechie.product.grpc.ProductStocksResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,13 +28,21 @@ import java.util.UUID;
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @GrpcClient("product-grpc-service")
     private ProductGrpcServiceGrpc.ProductGrpcServiceBlockingStub productGrpcService;
 
+    @Value("${message-bus.exchange-name}")
+    private String messageBusExchangeName;
+
+    @Value("${message-bus.routing-key}")
+    private String messageBusRoutingKey;
+
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, RabbitTemplate rabbitTemplate) {
         this.orderRepository = orderRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     private OrderResponse mapOrderToResponse(Order order) {
@@ -88,7 +98,12 @@ public class OrderService {
                         .build()
         );
 
-        // TODO: publish message to message bus that order is created
+        // publish message to message bus with the product ids and quantities
+        List<ProductStockDto> productsOrdered = order.getItems().stream()
+                .map(item -> new ProductStockDto(item.getProductId(), item.getQuantity()))
+                .toList();
+
+        rabbitTemplate.convertAndSend(messageBusExchangeName, messageBusRoutingKey, productsOrdered);
 
         return new ResponseEntity<>(mapOrderToResponse(order), HttpStatus.CREATED);
     }

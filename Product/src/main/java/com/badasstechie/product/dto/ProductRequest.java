@@ -9,7 +9,6 @@ public record ProductRequest(
         BigDecimal price,
         String category,
         String brandName,
-
         String brandImage,
         Integer stock)
 {}

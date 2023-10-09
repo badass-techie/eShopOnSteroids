@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 0 # random port
 
 spring:
   application:
@@ -21,6 +21,8 @@ spring:
   sleuth:
     sampler:
       probability: 1.0
+  rabbitmq:
+    addresses: localhost:5672
 
 eureka:
   client:
@@ -64,3 +66,9 @@ resilience4j:
     instances:
       product-grpc-service:
         baseConfig: default # use default config above
+
+# custom properties for our message bus
+message-bus:
+  exchange-name: 'eshoponsteroids'  # name of the exchange
+  queue-name: 'new-order' # name of the queue
+  routing-key: 'new-order'  # used to route messages from the exchange to the specified queue
