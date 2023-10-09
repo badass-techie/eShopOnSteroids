@@ -8,18 +8,18 @@ eShopOnSteroids is a well-architected, distributed, event-driven server-side e-c
 2. Service Discovery (Netflix Eureka)
 3. Distributed Tracing (Sleuth, Zipkin)
 4. Circuit Breaker (Resilience4j)
-5. Message Bus (RabbitMQ, Kafka)
+5. Message Bus (RabbitMQ)
 6. Database per Microservice (PostgreSQL, MongoDB, Redis)
-7. Centralized Logging (ElasticSearch, LogStash, Kibana)
+7. Centralized Monitoring (Prometheus, Grafana)
 8. Control Loop (Kubernetes, Terraform)
 
 This code follows best practices such as:
 
 - Unit Testing (JUnit 5, Mockito)
 - Integration Testing (Testcontainers)
-- Design Patterns (Builder, Observer, PubSub, ...)
+- Design Patterns (Builder, Singleton, PubSub, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, spring cloud, spring boot, spring cloud gateway, spring cloud config, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, elasticsearch, logstash, kibana, rabbitmq, kafka, terraform
+> microservices, event-driven, distributed systems, e-commerce, spring cloud, spring boot, spring cloud gateway, spring cloud config, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
 
 ## Architecture
 
@@ -47,11 +47,12 @@ Below is a visual representation:
 
 Admin services include:
 
-- Eureka dashboard to monitor the availability and health of microservices
+- Eureka dashboard to monitor the availability of microservices
 ![Eureka Dashboard](./diagrams/eureka2.png)
 - Zipkin dashboard for tracing requests across microservices
 ![Zipkin Dashboard](./diagrams/zipkin.png)
-- Kibana dashboard for viewing logs of microservices
+- Grafana dashboard for visualizing the metrics of microservices and setting up alerts when a metric exceeds a threshold
+![Grafana Dashboard](./diagrams/grafana.png)
 
 ## Installation
 
@@ -80,4 +81,28 @@ The interface (a Single-Page Application) is still a work in progress, but the a
 - http://localhost:8080/swagger-ui.html
 
 ![API Documentation]()
+
+## Running tests
+
+### Prerequisites
+
+- Java 17+
+- Docker
+
+### Unit tests
+
+To run the unit tests, run the following command:
+
+```bash
+mvnw test
+```
+
+### Integration tests
+
+- Make sure you have Docker installed and running
+- Run the following command to start the testcontainers:
+
+```bash
+mvnw verify
+```
 
