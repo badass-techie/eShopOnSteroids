@@ -35,7 +35,11 @@ public class CartService {
     public CartResponse mapCartItemsToResponse(List<CartItem> cartItems){
         return new CartResponse(
                 cartItems.stream().map(this::mapCartItemToResponse).toList(),
-                cartItems.stream().map(CartItem::getUnitPrice).reduce(BigDecimal.ZERO, BigDecimal::add)
+                cartItems.stream().reduce(
+                        BigDecimal.ZERO,
+                        (subtotal, cartItem) -> subtotal.add(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))),
+                        BigDecimal::add
+                )
         );
     }
 
