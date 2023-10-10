@@ -2,7 +2,7 @@
 
 # eShopOnSteroids 
 
-eShopOnSteroids is a well-architected, distributed, event-driven server-side e-commerce application powered by the following building blocks of microservices:
+eShopOnSteroids is a well-architected, distributed, event-driven, domain-driven, server-side e-commerce application powered by the following building blocks of microservices:
 
 1. API Gateway (Spring Cloud Gateway)
 2. Service Discovery (Netflix Eureka)
