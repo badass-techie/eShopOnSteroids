@@ -9,6 +9,7 @@ import com.badasstechie.product.util.Time;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,12 +89,10 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public PaginatedResponse<ProductResponse> getProducts(Pageable pageable, String category, String brandId, Long storeId, String partOfNameOrDescription) {
-        return new PaginatedResponse<>(
-                productRepository
+    public Page<ProductResponse> getProducts(Pageable pageable, String category, String brandId, Long storeId, String partOfNameOrDescription) {
+        return productRepository
                         .findByFilters(pageable, category, brandId, storeId, partOfNameOrDescription)
-                        .map(this::mapProductToResponse)
-        );
+                        .map(this::mapProductToResponse);
     }
 
     public BrandResponse getBrand(String id) {

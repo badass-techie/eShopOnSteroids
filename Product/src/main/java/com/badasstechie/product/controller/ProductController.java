@@ -10,6 +10,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -36,8 +37,16 @@ public class ProductController {
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        HashMap<String, String> params = new HashMap<>();
+        if (category != null) params.put("category", category);
+        if (brandId != null) params.put("brandId", brandId);
+        if (storeId != null) params.put("storeId", storeId.toString());
+        if (search != null) params.put("search", search);
+
         Pageable pageable = PageRequest.of(page, size);
-        return productService.getProducts(pageable, category, brandId, storeId, search);
+        Page<ProductResponse> products = productService.getProducts(pageable, category, brandId, storeId, search);
+
+        return new PaginatedResponse<>(products, params);
     }
 
     @GetMapping("/{id}/image")
