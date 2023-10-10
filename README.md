@@ -19,7 +19,7 @@ This code follows best practices such as:
 - Integration Testing (Testcontainers)
 - Design Patterns (Builder, Singleton, PubSub, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, spring cloud, spring boot, spring cloud gateway, spring cloud config, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
+> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, spring cloud, spring boot, spring cloud gateway, spring cloud config, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
 
 ## Architecture
 
@@ -39,7 +39,7 @@ Below is a visual representation:
 - All microservices are inside a private network and not accessible except through the API Gateway.
 - The API Gateway routes requests to the appropriate microservice, and validates the authorization of requests to all microservices except the Identity Microservice.
 - The Identity Microservice acts as an Identity Issuer and is responsible for storing users and their roles, and for issuing authorization credentials.
-- The Discovery Server registers the locations of each microservice as they may scale horizontally and have multiple instances running.
+- All microservices send periodic heartbeats to the Discovery Server which helps them locate each other as they may have multiple instances and IP addresses.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Message Bus to receive notifications of new orders and update the stock accordingly.
 - The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability of the products in the order pre-checkout, and publishes a message to the Message Bus when an order is placed successfully.
@@ -51,7 +51,7 @@ Admin services include:
 ![Eureka Dashboard](./diagrams/eureka2.png)
 - Zipkin dashboard for tracing requests across microservices
 ![Zipkin Dashboard](./diagrams/zipkin.png)
-- Grafana dashboard for visualizing the metrics of microservices and setting up alerts when a metric exceeds a threshold
+- Grafana dashboard for visualizing the metrics of microservices and setting up alerts for when a metric exceeds a threshold
 ![Grafana Dashboard](./diagrams/grafana.png)
 
 ## Installation
