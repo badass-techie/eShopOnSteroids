@@ -109,7 +109,7 @@ public class OrderService {
     }
 
     @CircuitBreaker(name = "product-grpc-service")
-    private List<ProductStockDto> getProductStocks(List<String> ids) {
+    public List<ProductStockDto> getProductStocks(List<String> ids) {
         // call grpc service to get product stocks
         ProductStocksResponse response = productGrpcService.getProductStocks(
                 ProductStocksRequest.newBuilder().addAllIds(ids).build());

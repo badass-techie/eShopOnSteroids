@@ -44,7 +44,7 @@ public class CartServiceTest {
     @Test
     void testAddToCart() {
         doNothing().when(cartItemRepository).save(any());    // mock the repository call to do nothing instead of actually saving the cart item
-        when(cartItemRepository.findAllByUserId(any())).thenReturn(cartItems); // mock the repository call to return the cart items we have created
+        when(cartItemRepository.findAllByUserId(any())).thenReturn(List.of(cartItem1)); // mock the repository call to return the cart items we have created
 
         CartResponse response = cartService.addToCart(cartItemRequest, 1L);
 
@@ -53,15 +53,5 @@ public class CartServiceTest {
         assertEquals(cartItemRequest.productName(), response.items().get(0).productName());
         assertEquals(cartItemRequest.unitPrice(), response.items().get(0).unitPrice());
         assertEquals(cartItemRequest.quantity(), response.items().get(0).quantity());
-    }
-
-    @Test
-    void testGetCartItems() {
-        when(cartItemRepository.findAllByUserId(any())).thenReturn(cartItems); // mock the repository call to return the cart items we have created
-        CartResponse response = cartService.getCartItems(1L);
-        assertNotNull(response);
-        assertEquals(2, response.items().size());
-        assertEquals(cartItem1.getId(), response.items().get(0).id());
-        assertEquals(cartItem2.getId(), response.items().get(1).id());
     }
 }

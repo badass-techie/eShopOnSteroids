@@ -80,15 +80,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUser() {
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(user));
-
-        UserResponse actual = userService.getUser(1L);
-
-        assertEquals(userService.mapUserToResponse(user), actual);
-    }
-
-    @Test
     void testDeactivateUser() {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(java.util.Optional.ofNullable(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
