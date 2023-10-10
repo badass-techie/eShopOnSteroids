@@ -2,17 +2,24 @@ package com.badasstechie.cart.repository;
 
 import com.badasstechie.cart.model.CartItem;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Repository
-@RequiredArgsConstructor
 public class CartItemRepository {
     private static final String KEY = "cart_item";
     private final RedisTemplate<String, CartItem> redisTemplate;
+
+    @Autowired
+    public CartItemRepository(RedisTemplate<String, CartItem> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        redisTemplate.expire(KEY, 1L, TimeUnit.DAYS);
+    }
 
     public void save(CartItem cartItem) {
         redisTemplate.opsForHash().put(KEY, cartItem.getId(), cartItem);
