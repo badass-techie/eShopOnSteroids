@@ -33,3 +33,11 @@ eureka:
 rsa:
   public-key: classpath:certs/public.pem
   private-key: classpath:certs/private.pem
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: '/api/v1/identity/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/api/v1/identity/swagger-ui.html'

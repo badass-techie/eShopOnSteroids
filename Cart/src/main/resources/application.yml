@@ -22,3 +22,11 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: '/api/v1/cart/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/api/v1/cart/swagger-ui.html'

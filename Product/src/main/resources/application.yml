@@ -30,3 +30,11 @@ message-bus:
   exchange-name: 'eshoponsteroids'  # name of the exchange
   queue-name: 'new-order' # name of the queue
   routing-key: 'new-order'  # used to route messages from the exchange to the specified queue
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: '/api/v1/product/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/api/v1/product/swagger-ui.html'

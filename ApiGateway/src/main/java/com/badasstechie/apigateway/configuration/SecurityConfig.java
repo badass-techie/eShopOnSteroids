@@ -41,7 +41,11 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/api/v*/identity/**").permitAll()    // so that new users can register
                         .pathMatchers(HttpMethod.GET, "/api/v*/product/**").permitAll()     // so that new users can see the products
-                        .pathMatchers("/eureka/**").permitAll() // admin services like eureka will implement their own auth
+                        .pathMatchers("/api/v*/*/swagger-ui.html").permitAll()     // so that the docs can be accessed
+                        .pathMatchers("/api/v*/*/swagger-ui/**").permitAll()
+                        .pathMatchers("/api/v*/*/swagger-resources/**").permitAll()
+                        .pathMatchers("/api/v*/*/api-docs/**").permitAll()
+                        .pathMatchers("/eureka/*").permitAll() // admin services like eureka will implement their own auth
                         .anyExchange().authenticated()  // require a a valid token for all other requests
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2

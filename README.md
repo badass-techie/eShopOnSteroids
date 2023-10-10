@@ -78,9 +78,9 @@ kubectl apply -f k8s
 
 The interface (a Single-Page Application) is still a work in progress, but the available endpoints can be found in the API documentation which post-deployment can be accessed at:
 
-- http://localhost:8080/swagger-ui.html
+- http://localhost:8080/api/v1/[name-of-microservice]/swagger-ui.html
 
-![API Documentation]()
+![API Documentation](./diagrams/swagger.png)
 
 ## Running tests
 
