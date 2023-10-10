@@ -3,6 +3,10 @@ package com.badasstechie.product.controller;
 import com.badasstechie.product.dto.*;
 import com.badasstechie.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +29,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> getProducts(@RequestParam(name="search", required=false) String searchTerm) {
-        return productService.getProducts(searchTerm);
+    public PaginatedResponse<ProductResponse> getProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String brandId,
+            @RequestParam(required = false) Long storeId,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.getProducts(pageable, category, brandId, storeId, search);
     }
 
     @GetMapping("/{id}/image")
@@ -42,21 +53,6 @@ public class ProductController {
     @GetMapping("/brand")
     public List<BrandResponse> getAllBrands() {
         return productService.getAllBrands();
-    }
-
-    @GetMapping("/brand/{brandId}")
-    public List<ProductResponse> getProductsByBrand(@PathVariable String brandId) {
-        return productService.getProductsByBrand(brandId);
-    }
-
-    @GetMapping("/category/{category}")
-    public List<ProductResponse> getProductsByCategory(@PathVariable String category) {
-        return productService.getProductsByCategory(category);
-    }
-
-    @GetMapping("/store/{storeId}")
-    public List<ProductResponse> getProductsByStore(@PathVariable Long storeId) {
-        return productService.getProductsByStore(storeId);
     }
 
     @PostMapping("/stocks")

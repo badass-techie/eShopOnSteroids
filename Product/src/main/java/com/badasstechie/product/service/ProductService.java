@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,9 +28,6 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
-
-    @Value("${message-bus.queue-name}")
-    private String messageBusQueueName;
 
     private ProductResponse mapProductToResponse(Product product) {
         return new ProductResponse(
@@ -91,13 +91,12 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public List<ProductResponse> getProducts(String searchTerm) {
-        return ((searchTerm == null || searchTerm.isEmpty()) ?
-                    productRepository.findAll() :
-                    productRepository.findByNameOrDescriptionContainsIgnoreCase(searchTerm))
-                .stream()
-                .map(this::mapProductToResponse)
-                .toList();
+    public PaginatedResponse<ProductResponse> getProducts(Pageable pageable, String category, String brandId, Long storeId, String partOfNameOrDescription) {
+        return new PaginatedResponse<>(
+                productRepository
+                        .findByFilters(pageable, category, brandId, storeId, partOfNameOrDescription)
+                        .map(this::mapProductToResponse)
+        );
     }
 
     public BrandResponse getBrand(String id) {
@@ -110,27 +109,6 @@ public class ProductService {
         return brandRepository.findAll()
                 .stream()
                 .map(this::mapBrandToResponse)
-                .toList();
-    }
-
-    public List<ProductResponse> getProductsByBrand(String brandId) {
-        return productRepository.findAllByBrand_Id(brandId)
-                .stream()
-                .map(this::mapProductToResponse)
-                .toList();
-    }
-
-    public List<ProductResponse> getProductsByCategory(String category) {
-        return productRepository.findAllByCategory(category)
-                .stream()
-                .map(this::mapProductToResponse)
-                .toList();
-    }
-
-    public List<ProductResponse> getProductsByStore(Long storeId) {
-        return productRepository.findAllByStoreId(storeId)
-                .stream()
-                .map(this::mapProductToResponse)
                 .toList();
     }
 
