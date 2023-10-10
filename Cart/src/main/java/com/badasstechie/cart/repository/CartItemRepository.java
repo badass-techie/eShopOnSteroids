@@ -1,7 +1,6 @@
 package com.badasstechie.cart.repository;
 
 import com.badasstechie.cart.model.CartItem;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
