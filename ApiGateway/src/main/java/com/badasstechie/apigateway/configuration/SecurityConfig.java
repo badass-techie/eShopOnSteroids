@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -38,9 +39,10 @@ public class SecurityConfig {
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/api/v*/identity/**").permitAll()    // identity microservice will be accessible to everyone to request or manage credentials
+                        .pathMatchers("/api/v*/identity/**").permitAll()    // so that new users can register
+                        .pathMatchers(HttpMethod.GET, "/api/v*/product/**").permitAll()     // so that new users can see the products
                         .pathMatchers("/eureka/**").permitAll() // admin services like eureka will implement their own auth
-                        .anyExchange().authenticated()  // requests to the other microservices will require a valid token
+                        .anyExchange().authenticated()  // require a a valid token for all other requests
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2
                         .jwt(Customizer.withDefaults())
