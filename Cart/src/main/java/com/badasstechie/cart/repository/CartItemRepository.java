@@ -21,40 +21,39 @@ public class CartItemRepository {
         redisTemplate.expire(KEY, 1L, TimeUnit.DAYS);
     }
 
-    public void save(CartItem cartItem) {
-        redisTemplate.opsForHash().put(KEY, cartItem.getId(), cartItem);
+    public void save(CartItem cartItem, Long userId) {
+        redisTemplate.opsForHash().put(userId.toString(), cartItem.getProductId(), cartItem);
     }
 
     public List<CartItem> findAllByUserId(Long userId) {
-        return redisTemplate.opsForHash().values(KEY).stream()
-                .filter(cartItem -> ((CartItem) cartItem).getUserId().equals(userId))
+        return redisTemplate.opsForHash().values(userId.toString()).stream()
                 .map(cartItem -> (CartItem) cartItem)
                 .collect(Collectors.toList());
     }
 
-    public void incrementQuantity(String id) {
-        CartItem cartItem = (CartItem) redisTemplate.opsForHash().get(KEY, id);
+    public void incrementQuantity(Long userId, String productId) {
+        CartItem cartItem = (CartItem) redisTemplate.opsForHash().get(userId.toString(), productId);
         if (cartItem != null) {
             cartItem.setQuantity(cartItem.getQuantity() + 1);
-            redisTemplate.opsForHash().put(KEY, id, cartItem);
+            redisTemplate.opsForHash().put(userId.toString(), productId, cartItem);
         }
         else {
             throw new RuntimeException("Cart item not found");
         }
     }
 
-    public void decrementQuantity(String id) {
-        CartItem cartItem = (CartItem) redisTemplate.opsForHash().get(KEY, id);
+    public void decrementQuantity(Long userId, String productId) {
+        CartItem cartItem = (CartItem) redisTemplate.opsForHash().get(userId.toString(), productId);
         if (cartItem != null && cartItem.getQuantity() > 0) {
             cartItem.setQuantity(cartItem.getQuantity() - 1);
-            redisTemplate.opsForHash().put(KEY, id, cartItem);
+            redisTemplate.opsForHash().put(userId.toString(), productId, cartItem);
         }
         else {
             throw new RuntimeException("Cart item not found");
         }
     }
 
-    public void delete(String id) {
-        redisTemplate.opsForHash().delete(KEY, id);
+    public void delete(Long userId, String productId) {
+        redisTemplate.opsForHash().delete(userId.toString(), productId);
     }
 }

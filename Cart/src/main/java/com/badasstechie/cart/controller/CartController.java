@@ -24,18 +24,18 @@ public class CartController {
         return cartService.getCartItems(userId);
     }
 
-    @GetMapping("/{id}/increment")
-    public CartResponse incrementQuantity(@PathVariable String id, @RequestParam(name="userId") Long userId) {
-        return cartService.incrementQuantity(id, userId);
+    @GetMapping("/{productId}/increment")
+    public CartResponse incrementQuantity(@RequestParam(name="userId") Long userId, @PathVariable String productId) {
+        return cartService.incrementQuantity(userId, productId);
     }
 
-    @GetMapping("/{id}/decrement")
-    public CartResponse decrementQuantity(@PathVariable String id, @RequestParam(name="userId") Long userId) {
-        return cartService.decrementQuantity(id, userId);
+    @GetMapping("/{productId}/decrement")
+    public CartResponse decrementQuantity(@RequestParam(name="userId") Long userId, @PathVariable String productId) {
+        return cartService.decrementQuantity(userId, productId);
     }
 
-    @DeleteMapping("/{id}")
-    public CartResponse delete(@PathVariable String id, @RequestParam(name="userId") Long userId) {
-        return cartService.removeFromCart(id, userId);
+    @DeleteMapping("/{productId}")
+    public CartResponse delete(@RequestParam(name="userId") Long userId, @PathVariable String productId) {
+        return cartService.removeFromCart(userId, productId);
     }
 }

@@ -29,21 +29,18 @@ public class CartServiceTest {
 
     @InjectMocks
     private CartService cartService;
-    private CartItem cartItem1, cartItem2;
-    private List<CartItem> cartItems;
+    private CartItem cartItem1;
     private CartItemRequest cartItemRequest;
 
     @BeforeEach
     void setup() {
-        cartItem1 = new CartItem("id1", 5L, "product1", "Product 1", BigDecimal.valueOf(10), 1);
-        cartItem2 = new CartItem("id2", 6L, "product2", "Product 2", BigDecimal.valueOf(20), 2);
-        cartItems = List.of(cartItem1, cartItem2);
+        cartItem1 = new CartItem("product1", "Product 1", BigDecimal.valueOf(10), 1);
         cartItemRequest = new CartItemRequest(cartItem1.getProductId(), cartItem1.getProductName(), cartItem1.getUnitPrice(), cartItem1.getQuantity());
     }
 
     @Test
     void testAddToCart() {
-        doNothing().when(cartItemRepository).save(any());    // mock the repository call to do nothing instead of actually saving the cart item
+        doNothing().when(cartItemRepository).save(any(), any());    // mock the repository call to do nothing instead of actually saving the cart item
         when(cartItemRepository.findAllByUserId(any())).thenReturn(List.of(cartItem1)); // mock the repository call to return the cart items we have created
 
         CartResponse response = cartService.addToCart(cartItemRequest, 1L);

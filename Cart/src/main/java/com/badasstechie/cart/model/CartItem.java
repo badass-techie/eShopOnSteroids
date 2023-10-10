@@ -12,10 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@RedisHash("cart_item")
 public class CartItem implements Serializable {
-    private String id;
-    private Long userId;
     private String productId;
     private String productName;
     private BigDecimal unitPrice;

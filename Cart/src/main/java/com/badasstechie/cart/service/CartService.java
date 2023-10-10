@@ -22,8 +22,6 @@ public class CartService {
 
     public CartItemResponse mapCartItemToResponse(CartItem cartItem){
         return new CartItemResponse(
-            cartItem.getId(),
-            cartItem.getUserId(),
             cartItem.getProductId(),
             cartItem.getProductName(),
             "/api/v1/product/" + cartItem.getProductId() + "/image",
@@ -45,15 +43,13 @@ public class CartService {
 
     public CartResponse addToCart(CartItemRequest cartItemRequest, Long userId) {
         CartItem cartItem = CartItem.builder()
-                        .id(UUID.randomUUID().toString())
-                        .userId(userId)
                         .productId(cartItemRequest.productId())
                         .productName(cartItemRequest.productName())
                         .unitPrice(cartItemRequest.unitPrice())
                         .quantity(cartItemRequest.quantity())
                         .build();
 
-        cartItemRepository.save(cartItem);
+        cartItemRepository.save(cartItem, userId);
         return getCartItems(userId);
     }
 
@@ -61,18 +57,18 @@ public class CartService {
         return mapCartItemsToResponse(cartItemRepository.findAllByUserId(userId));
     }
 
-    public CartResponse incrementQuantity(String id, Long userId) {
-        cartItemRepository.incrementQuantity(id);
+    public CartResponse incrementQuantity(Long userId, String productId) {
+        cartItemRepository.incrementQuantity(userId, productId);
         return getCartItems(userId);
     }
 
-    public CartResponse decrementQuantity(String id, Long userId) {
-        cartItemRepository.decrementQuantity(id);
+    public CartResponse decrementQuantity(Long userId, String productId) {
+        cartItemRepository.decrementQuantity(userId, productId);
         return getCartItems(userId);
     }
 
-    public CartResponse removeFromCart(String id, Long userId) {
-        cartItemRepository.delete(id);
+    public CartResponse removeFromCart(Long userId, String productId) {
+        cartItemRepository.delete(userId, productId);
         return getCartItems(userId);
     }
 }
