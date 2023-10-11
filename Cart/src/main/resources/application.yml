@@ -23,6 +23,23 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
 
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+
 springdoc:
   api-docs:
     version: openapi_3_0

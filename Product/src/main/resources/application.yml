@@ -31,6 +31,23 @@ message-bus:
   queue-name: 'new-order' # name of the queue
   routing-key: 'new-order'  # used to route messages from the exchange to the specified queue
 
+management:
+  endpoint:
+    metrics:
+      enabled: true # enable metrics endpoint
+    prometheus:
+      enabled: true # enable prometheus endpoint
+  endpoints:
+    web:
+      exposure:
+        include: '*' # expose all endpoints
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true # enable prometheus metrics exporter
+
 springdoc:
   api-docs:
     version: openapi_3_0
