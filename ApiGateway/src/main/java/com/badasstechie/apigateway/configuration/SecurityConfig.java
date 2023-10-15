@@ -13,10 +13,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtValidationException;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,8 +21,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -80,6 +75,11 @@ public class SecurityConfig {
                 ServerHttpResponse response = exchange.getResponse();
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);    // set the status code to 401
                 DataBuffer buffer = response.bufferFactory().wrap(jwtValidationException.getMessage().getBytes(StandardCharsets.UTF_8));
+                return response.writeWith(Mono.just(buffer)); // write the exception message to the response
+            } catch (BadJwtException badJwtException) {
+                ServerHttpResponse response = exchange.getResponse();
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);    // set the status code to 401
+                DataBuffer buffer = response.bufferFactory().wrap(badJwtException.getMessage().getBytes(StandardCharsets.UTF_8));
                 return response.writeWith(Mono.just(buffer)); // write the exception message to the response
             }
         };
