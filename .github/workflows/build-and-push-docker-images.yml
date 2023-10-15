@@ -18,7 +18,12 @@ jobs:
 
     - name: Copy env.example files to dummy .env (required for docker compose)
       run: |
-        find . -name env.example -exec bash -c 'cp "$1" "${1%env.example}.env"' _ {} \;
+        touch ./ApiGateway/.env
+        touch ./Cart/.env
+        touch ./DiscoveryServer/.env
+        touch ./Identity/.env
+        touch ./Order/.env
+        touch ./Product/.env
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
