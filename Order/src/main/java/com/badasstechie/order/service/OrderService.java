@@ -51,7 +51,11 @@ public class OrderService {
                 order.getUserId(),
                 order.getOrderNumber(),
                 order.getItems().stream().map(this::mapOrderItemToDto).toList(),
-                order.getItems().stream().map(OrderItem::getUnitPrice).reduce(BigDecimal.ZERO, BigDecimal::add),
+                order.getItems().stream().reduce(
+                        BigDecimal.ZERO,
+                        (subtotal, orderItem) -> subtotal.add(orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()))),
+                        BigDecimal::add
+                ),
                 order.getDeliveryAddress(),
                 order.getStatus().name(),
                 order.getCreated().toString()
