@@ -1,6 +1,8 @@
 <img src="./diagrams/banner.png" alt="eShop logo" title="eShopOnSteroids" align="right" height="60" />
 
-# eShopOnSteroids 
+# eShopOnSteroids
+
+[![Build](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml/badge.svg?branch=main)](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml) [![Issues](https://img.shields.io/github/issues/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/issues) [![Pull-Requests](https://img.shields.io/github/issues-pr/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/pulls) ![Stars](https://img.shields.io/github/stars/badass-techie/eShopOnSteroids) ![Forks](https://img.shields.io/github/forks/badass-techie/eShopOnSteroids)
 
 eShopOnSteroids is a well-architected, distributed, event-driven, domain-driven, server-side e-commerce application powered by the following building blocks of microservices:
 
