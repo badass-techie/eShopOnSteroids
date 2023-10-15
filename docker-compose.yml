@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: discovery-server
-    image: eshoponsteroids/discovery-server
+    image: badasstechie/eshoponsteroids-discovery-server
     restart: on-failure
     env_file:
       - ./DiscoveryServer/.env
@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: api-gateway
-    image: eshoponsteroids/api-gateway
+    image: badasstechie/eshoponsteroids-api-gateway
     restart: on-failure
     ports:
       - 8080:8080
@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: cart
-    image: eshoponsteroids/cart
+    image: badasstechie/eshoponsteroids-cart
     restart: on-failure
     env_file:
       - ./Cart/.env
@@ -77,7 +77,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: identity
-    image: eshoponsteroids/identity
+    image: badasstechie/eshoponsteroids-identity
     restart: on-failure
     env_file:
       - ./Identity/.env
@@ -104,7 +104,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: order
-    image: eshoponsteroids/order
+    image: badasstechie/eshoponsteroids-order
     restart: on-failure
     env_file:
       - ./Order/.env
@@ -128,7 +128,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: product
-    image: eshoponsteroids/product
+    image: badasstechie/eshoponsteroids-product
     restart: on-failure
     env_file:
       - ./Product/.env

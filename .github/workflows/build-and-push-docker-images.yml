@@ -16,7 +16,7 @@ jobs:
     - name: Check Out Code
       uses: actions/checkout@v3
 
-    - name: Copy env.example files to dummy .env (required for docker compose)
+    - name: Create dummy .env files (required for docker compose)
       run: |
         touch ./ApiGateway/.env
         touch ./Cart/.env
