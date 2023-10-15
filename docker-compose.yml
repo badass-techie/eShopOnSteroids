@@ -149,6 +149,8 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
+    environment:
+      - GF_LOG_LEVEL=warn
     depends_on:
       - prometheus
 
