@@ -5,7 +5,7 @@ spring:
   application:
     name: Order
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsorderservice'
+    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsordermicroservice'
     username: 'postgres'
     password: '0000'
   jpa:
@@ -22,7 +22,7 @@ spring:
     sampler:
       probability: 1.0
   rabbitmq:
-    addresses: localhost:5672
+    addresses: amqp://localhost:5672
 
 eureka:
   client:

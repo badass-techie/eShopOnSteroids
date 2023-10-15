@@ -8,7 +8,7 @@ spring:
   application:
     name: Identity
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsidentityservice'
+    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsidentitymicroservice'
     username: 'postgres'
     password: '0000'
   jpa:
