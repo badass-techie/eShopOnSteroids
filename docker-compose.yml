@@ -1,0 +1,160 @@
+version: '3.8'
+services:
+  zipkin:
+    image: openzipkin/zipkin-slim:2.24.2
+    restart: unless-stopped
+    ports:
+      - 9411:9411
+
+  rabbitmq:
+    image: rabbitmq:3
+    restart: unless-stopped
+
+  discovery-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: discovery-server
+    image: eshoponsteroids/discovery-server
+    restart: on-failure
+    env_file:
+      - ./DiscoveryServer/.env
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-gateway
+    image: eshoponsteroids/api-gateway
+    restart: on-failure
+    ports:
+      - 8080:8080
+    env_file:
+      - ./ApiGateway/.env
+    depends_on:
+      - discovery-server
+
+  cart-db:
+    image: redis:7.2.1
+    restart: unless-stopped
+    volumes:
+      - cart-db:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  cart:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cart
+    image: eshoponsteroids/cart
+    restart: on-failure
+    env_file:
+      - ./Cart/.env
+    depends_on:
+      - cart-db
+
+  identity-db:
+    image: postgres:16.0
+    restart: unless-stopped
+    volumes:
+      - identity-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=identity
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  identity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: identity
+    image: eshoponsteroids/identity
+    restart: on-failure
+    env_file:
+      - ./Identity/.env
+    depends_on:
+      - identity-db
+
+  order-db:
+    image: postgres:16.0
+    restart: unless-stopped
+    volumes:
+      - order-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=order
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  order:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: order
+    image: eshoponsteroids/order
+    restart: on-failure
+    env_file:
+      - ./Order/.env
+    depends_on:
+      - order-db
+      - rabbitmq
+
+  product-db:
+    image: mongo:7.0
+    restart: unless-stopped
+    volumes:
+      - product-db:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  product:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: product
+    image: eshoponsteroids/product
+    restart: on-failure
+    env_file:
+      - ./Product/.env
+    depends_on:
+      - product-db
+      - rabbitmq
+
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:10.1.5
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
+
+
+volumes:
+  cart-db:
+  identity-db:
+  order-db:
+  product-db:

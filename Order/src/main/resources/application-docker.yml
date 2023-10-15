@@ -1,0 +1,92 @@
+server:
+  port: 0 # random port
+
+spring:
+  application:
+    name: Order
+  datasource:
+    url: ${ORDER_DB_URL}
+    username: ${ORDER_DB_USERNAME}
+    password: ${ORDER_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false # disable logging of sql statements
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  zipkin:
+    base-url: ${ZIPKIN_BASE}
+  sleuth:
+    sampler:
+      probability: 1.0
+  rabbitmq:
+    addresses: ${RABBITMQ_BASE}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVER_BASE}/eureka
+
+grpc:
+  client:
+    product-grpc-service:
+      address: 'discovery:///product'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true # register health indicator to monitor the state of the circuit breaker
+        slidingWindowSize: 10 # number of calls which are used to calculate the error rate
+        minimumNumberOfCalls: 5 # minimum number of calls which are required (per sliding window period) before the CircuitBreaker can calculate the error rate
+        permittedNumberOfCallsInHalfOpenState: 3  # number of permitted calls when the CircuitBreaker is half open
+        automaticTransitionFromOpenToHalfOpenEnabled: true  # if enabled a CircuitBreaker will try to close automatically if the waitDurationInOpenState is over
+        waitDurationInOpenState: 5s # time which a CircuitBreaker should stay open, before it switches to half open
+        failureRateThreshold: 50  # percentage of calls which are allowed to fail
+        eventConsumerBufferSize: 10 # size of the ring buffer used to record the outcome of calls when the CircuitBreaker is closed
+        recordExceptions:
+          - io.grpc.StatusRuntimeException  # record exceptions of type StatusRuntimeException as failures
+    instances:
+      product-grpc-service:
+        baseConfig: default # use default config above
+
+# custom properties for our message bus
+message-bus:
+  exchange-name: 'eshoponsteroids'  # name of the exchange
+  queue-name: 'new-order' # name of the queue
+  routing-key: 'new-order'  # used to route messages from the exchange to the specified queue
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: '/api/v1/order/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/api/v1/order/swagger-ui.html'

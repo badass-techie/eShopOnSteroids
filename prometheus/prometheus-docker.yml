@@ -1,0 +1,12 @@
+global:
+  scrape_interval:     10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'spring'
+    metrics_path: '/actuator/prometheus'
+    eureka_sd_configs:
+      - server: 'http://discovery-server:8761/eureka'
+    relabel_configs:
+      - source_labels: [__meta_eureka_app_instance_alias]
+        target_label: instance

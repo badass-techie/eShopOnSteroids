@@ -1,0 +1,48 @@
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+  port: 0
+
+spring:
+  application:
+    name: Cart
+  redis:
+    database: 0
+    timeout: 10000
+    url: ${CART_DB_URL}
+  zipkin:
+    base-url: ${ZIPKIN_BASE}
+  sleuth:
+    sampler:
+      probability: 1.0
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVER_BASE}/eureka
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: '/api/v1/cart/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/api/v1/cart/swagger-ui.html'

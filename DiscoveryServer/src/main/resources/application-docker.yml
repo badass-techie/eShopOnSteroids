@@ -1,0 +1,16 @@
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+
+spring:
+  zipkin:
+    base-url: ${ZIPKIN_BASE}
+  sleuth:
+    sampler:
+      probability: 1.0
