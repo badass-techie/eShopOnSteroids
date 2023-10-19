@@ -129,8 +129,8 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll()
+    public List<OrderResponse> getOrdersByUser(Long userId) {
+        return orderRepository.findAllByUserId(userId)
                 .stream()
                 .map(this::mapOrderToResponse)
                 .toList();
