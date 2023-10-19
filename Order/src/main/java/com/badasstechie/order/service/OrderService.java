@@ -84,6 +84,10 @@ public class OrderService {
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
         List<ProductStockDto> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
 
+        // throw exception if length of stocks and order items are not equal
+        if (stocks.size() != orderRequest.items().size())
+            throw new RuntimeException("Product stocks not found");
+
         // throw exception if stock of any product is not enough
         for(int i = 0; i < orderRequest.items().size(); ++i) {
             if (stocks.get(i).quantity() < orderRequest.items().get(i).quantity())
