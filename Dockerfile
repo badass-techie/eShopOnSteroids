@@ -25,7 +25,6 @@ RUN cp public.pem /build/ApiGateway/src/main/resources/certs/public.pem
 # Overwrite application.yml with application-docker.yml for each maven module
 RUN cp ApiGateway/src/main/resources/application-docker.yml ApiGateway/src/main/resources/application.yml
 RUN cp Cart/src/main/resources/application-docker.yml Cart/src/main/resources/application.yml
-RUN cp DiscoveryServer/src/main/resources/application-docker.yml DiscoveryServer/src/main/resources/application.yml
 RUN cp Identity/src/main/resources/application-docker.yml Identity/src/main/resources/application.yml
 RUN cp Order/src/main/resources/application-docker.yml Order/src/main/resources/application.yml
 RUN cp Product/src/main/resources/application-docker.yml Product/src/main/resources/application.yml
@@ -44,17 +43,6 @@ COPY --from=0 /build/ApiGateway/target/apigateway-1.0-SNAPSHOT.jar apigateway.ja
 
 # Run the jar file
 ENTRYPOINT ["java","-jar","apigateway.jar"]
-
-
-# DiscoveryServer
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS discovery-server
-
-# Copy only the jar file
-COPY --from=0 /build/DiscoveryServer/target/discoveryserver-1.0-SNAPSHOT.jar discoveryserver.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","discoveryserver.jar"]
 
 
 # Cart

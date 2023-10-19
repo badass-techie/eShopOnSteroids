@@ -6,7 +6,7 @@ server:
 
 spring:
   application:
-    name: Cart
+    name: cart
   redis:
     database: 0
     timeout: 10000
@@ -16,11 +16,13 @@ spring:
   sleuth:
     sampler:
       probability: 1.0
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka
+  cloud:
+    consul:
+      host: localhost # Consul server host
+      port: 8500 # Consul server port
+      discovery:
+        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        serviceName: ${spring.application.name}
 
 management:
   endpoint:

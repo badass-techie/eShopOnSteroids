@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@EnableDiscoveryClient    // Enable the Eureka Client
+@EnableDiscoveryClient    // Enable this application as a service discovery client
 @EnableConfigurationProperties(RsaKeyProperties.class)
 public class ApiGatewayApplication {
 

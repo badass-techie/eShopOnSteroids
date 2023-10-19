@@ -6,21 +6,23 @@ server:
 
 spring:
   application:
-    name: Cart
+    name: cart
   redis:
     database: 0
     timeout: 10000
-    url: ${CART_DB_URL}
+    url:  ${CART_DB_URL}
   zipkin:
     base-url: ${ZIPKIN_BASE}
   sleuth:
     sampler:
       probability: 1.0
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${DISCOVERY_SERVER_BASE}/eureka
+  cloud:
+    consul:
+      host: ${DISCOVERY_SERVER_HOST} # Consul server host
+      port: 8500 # Consul server port
+      discovery:
+        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        serviceName: ${spring.application.name}
 
 management:
   endpoint:

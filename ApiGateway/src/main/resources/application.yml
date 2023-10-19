@@ -1,8 +1,3 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka
-
 server:
     port: 8080
 
@@ -12,7 +7,7 @@ rsa:
 # Routes
 spring:
   application:
-    name: ApiGateway
+    name: api-gateway
   cloud:
     gateway:
       routes:
@@ -35,18 +30,6 @@ spring:
           uri: lb://cart
           predicates:
             - Path=/api/v*/cart/**
-
-        - id: DiscoveryServer
-          uri: http://localhost:8761
-          predicates:
-            - Path=/eureka/web
-          filters:
-            - SetPath=/   # /eureka/web -> /
-
-        - id: DiscoveryServerStaticResources
-          uri: http://localhost:8761
-          predicates:
-            - Path=/eureka/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -57,6 +40,12 @@ spring:
               - PUT
               - PATCH
               - DELETE
+    consul:
+      host: localhost # Consul server host
+      port: 8500 # Consul server port
+      discovery:
+        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        serviceName: ${spring.application.name}
   zipkin:
     base-url: http://localhost:9411
   sleuth:

@@ -41,7 +41,6 @@ public class SecurityConfig {
                         .pathMatchers("/api/v*/*/swagger-resources/**").permitAll()
                         .pathMatchers("/api/v*/*/api-docs/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()   // so that actuator endpoints for the api gateway can be accessed
-                        .pathMatchers("/eureka/*").permitAll() // admin services like eureka will implement their own auth
                         .anyExchange().authenticated()  // require a a valid token for all other requests
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2

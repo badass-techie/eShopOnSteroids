@@ -1,10 +1,5 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${DISCOVERY_SERVER_BASE}/eureka/
-
 server:
-    port: 8080
+  port: 8080
 
 rsa:
   public-key: classpath:certs/public.pem
@@ -12,7 +7,7 @@ rsa:
 # Routes
 spring:
   application:
-    name: ApiGateway
+    name: api-gateway
   cloud:
     gateway:
       routes:
@@ -35,18 +30,6 @@ spring:
           uri: lb://cart
           predicates:
             - Path=/api/v*/cart/**
-
-        - id: DiscoveryServer
-          uri: ${DISCOVERY_SERVER_BASE}
-          predicates:
-            - Path=/eureka/web
-          filters:
-            - SetPath=/   # /eureka/web -> /
-
-        - id: DiscoveryServerStaticResources
-          uri: ${DISCOVERY_SERVER_BASE}
-          predicates:
-            - Path=/eureka/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -57,6 +40,12 @@ spring:
               - PUT
               - PATCH
               - DELETE
+    consul:
+      host: ${DISCOVERY_SERVER_HOST} # Consul server host
+      port: 8500 # Consul server port
+      discovery:
+        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        serviceName: ${spring.application.name}
   zipkin:
     base-url: ${ZIPKIN_BASE}
   sleuth:

@@ -1,12 +1,12 @@
 global:
-  scrape_interval:     10s
-  evaluation_interval: 10s
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
 
 scrape_configs:
   - job_name: 'spring'
     metrics_path: '/actuator/prometheus'
-    eureka_sd_configs:
-      - server: 'http://discovery-server:8761/eureka'
+    consul_sd_configs:
+      - server: 'http://discovery-server:8500'
     relabel_configs:
-      - source_labels: [__meta_eureka_app_instance_alias]
+      - source_labels: [__meta_consul_service]
         target_label: instance

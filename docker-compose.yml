@@ -4,21 +4,18 @@ services:
     image: openzipkin/zipkin-slim:2.24.2
     restart: unless-stopped
     ports:
-      - 9411:9411
+      - "9411:9411"
 
   rabbitmq:
     image: rabbitmq:3
     restart: unless-stopped
 
   discovery-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: discovery-server
-    image: badasstechie/eshoponsteroids-discovery-server
-    restart: on-failure
-    env_file:
-      - ./DiscoveryServer/.env
+    image: hashicorp/consul:1.16
+    command: ["consul", "agent", "-dev", "-client", "0.0.0.0"]
+    restart: unless-stopped
+    ports:
+      - "8500:8500"
 
   api-gateway:
     build:
@@ -28,9 +25,9 @@ services:
     image: badasstechie/eshoponsteroids-api-gateway
     restart: on-failure
     ports:
-      - 8080:8080
+      - "8080:8080"
     env_file:
-      - ./ApiGateway/.env
+      - .env
     depends_on:
       - discovery-server
 
@@ -53,7 +50,7 @@ services:
     image: badasstechie/eshoponsteroids-cart
     restart: on-failure
     env_file:
-      - ./Cart/.env
+      - .env
     depends_on:
       - cart-db
 
@@ -62,9 +59,11 @@ services:
     restart: unless-stopped
     volumes:
       - identity-db:/var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=0000
+      - POSTGRES_USER=$IDENTITY_DB_USERNAME
+      - POSTGRES_PASSWORD=$IDENTITY_DB_PASSWORD
       - POSTGRES_DB=identity
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
@@ -80,7 +79,7 @@ services:
     image: badasstechie/eshoponsteroids-identity
     restart: on-failure
     env_file:
-      - ./Identity/.env
+      - .env
     depends_on:
       - identity-db
 
@@ -89,9 +88,11 @@ services:
     restart: unless-stopped
     volumes:
       - order-db:/var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=0000
+      - POSTGRES_USER=$ORDER_DB_USERNAME
+      - POSTGRES_PASSWORD=$ORDER_DB_PASSWORD
       - POSTGRES_DB=order
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
@@ -107,13 +108,13 @@ services:
     image: badasstechie/eshoponsteroids-order
     restart: on-failure
     env_file:
-      - ./Order/.env
+      - .env
     depends_on:
       - order-db
       - rabbitmq
 
   product-db:
-    image: mongo:7.0
+    image: mongo:5.0-focal
     restart: unless-stopped
     volumes:
       - product-db:/data/db
@@ -131,7 +132,7 @@ services:
     image: badasstechie/eshoponsteroids-product
     restart: on-failure
     env_file:
-      - ./Product/.env
+      - .env
     depends_on:
       - product-db
       - rabbitmq
@@ -142,13 +143,15 @@ services:
     volumes:
       - ./prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
     ports:
-      - 9090:9090
+      - "9090:9090"
 
   grafana:
     image: grafana/grafana:10.1.5
     restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - GF_LOG_LEVEL=warn
     depends_on:
@@ -160,3 +163,4 @@ volumes:
   identity-db:
   order-db:
   product-db:
+  grafana-data:

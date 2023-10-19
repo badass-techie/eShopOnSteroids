@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@EnableDiscoveryClient    // Enable the Eureka Client
+@EnableDiscoveryClient        // Enable this application as a service discovery client
 public class CartApplication {
 
 	public static void main(String[] args) {

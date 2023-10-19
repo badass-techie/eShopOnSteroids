@@ -6,7 +6,7 @@ server:
 
 spring:
   application:
-    name: Product
+    name: product
   data:
     mongodb:
       uri: mongodb://localhost:27017/eshoponsteroidsproductmicroservice
@@ -17,11 +17,13 @@ spring:
       probability: 1.0
   rabbitmq:
     addresses: amqp://localhost:5672
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka
+  cloud:
+    consul:
+      host: localhost # Consul server host
+      port: 8500 # Consul server port
+      discovery:
+        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        serviceName: ${spring.application.name}
 
 grpc:
   server:
