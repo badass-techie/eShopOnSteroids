@@ -23,6 +23,8 @@ This code follows best practices such as:
 
 > microservices, event-driven, distributed systems, e-commerce, domain-driven-design, spring cloud, spring boot, spring cloud gateway, hashicorp consul, hashicorp vault, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
 
+Note: If you are interested in this project, no better way to show it by ★ starring the repository!
+
 ## Architecture
 
 The architecture proposes a microservices oriented implementation where each microservice is responsible for a single business capability. The microservices are deployed in a containerized environment (Docker) and managed by a control loop (Kubernetes) which compares the state of each microservice to the desired state, and takes necessary actions to eventually arrive at the desired state.
