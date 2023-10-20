@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: identity # name of the deployment
+  namespace: eshoponsteroids
+spec:
+  serviceName: identity
+  selector:
+    matchLabels:
+      app: identity # tell this deployment to target the pods with the label app: identity
+  template:  # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: identity
+    spec:
+      containers:
+        - name: identity
+          image: badasstechie/eshoponsteroids-identity:latest  # image to be pulled from Docker Hub
+          imagePullPolicy: Always   # always pull the image from Docker Hub even if it exists locally
+          ports:
+            - containerPort: 8082 # port exposed by the container
+          envFrom:
+            - configMapRef:
+                name: env-vars
+            - secretRef:
+                name: env-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8082" # Override random port with one that is known so that we can expose it
+          resources:
+            limits:
+              cpu: "500m"  # limit the CPU usage to 0.5 cores
+            requests:
+              cpu: "200m"  # request at least 0.2 CPU cores
+
+---
+
+# service to expose deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity
+  namespace: eshoponsteroids
+spec:
+  type: ClusterIP # expose the service inside the cluster
+  ports:
+      - port: 8082  # port exposed by the service
+        targetPort: 8082  # port exposed by the container
+  selector:
+    app: identity # tell this service to target the pods with the label app: identity
+
+---
+
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler 
+metadata: 
+  name: identity
+  namespace: eshoponsteroids
+spec: 
+  scaleTargetRef: 
+    apiVersion: apps/v1 
+    kind: Deployment 
+    name: identity  # scale the identity deployment
+  minReplicas: 1  # have at least one instance
+  maxReplicas: 4   # have at most 4 instances
+  metrics: 
+    - type: Resource 
+      resource: 
+        name: cpu 
+        target: 
+          type : Utilization 
+          averageUtilization: 70  # scale to achieve an average CPU utilization of 70%

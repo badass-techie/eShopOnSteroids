@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-db
+  namespace: eshoponsteroids
+spec:
+  selector:
+    matchLabels:
+      app: product-db  # tell this deployment to target the pods with the label app: product-db
+  replicas: 1 # only one instance of the pod
+  template:  # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: product-db
+    spec:
+      containers:
+        - name: product-db
+          image: mongo:4-focal
+          ports:  # expose the port 27017
+            - containerPort: 27017
+          volumeMounts: # mount the volume to the container
+            - name: product-db
+              mountPath: /data/db
+          readinessProbe: # check if the container is ready to accept traffic
+            exec:
+              command: ["mongo", "--eval", "db.adminCommand('ping')"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: product-db
+          persistentVolumeClaim:
+            claimName: product-db-pvc
+
+---
+
+# service to expose deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-db
+  namespace: eshoponsteroids
+spec:
+  type: ClusterIP # expose the service inside the cluster
+  selector:
+    app: product-db   # tell this service to target the pods with the label app: product-db
+  ports:
+    - port: 27017  # port exposed by the service
+      targetPort: 27017    # port exposed by the container

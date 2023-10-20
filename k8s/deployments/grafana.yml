@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: eshoponsteroids
+spec:
+  replicas: 1 # have only one instance of the pod
+  selector:
+    matchLabels:
+      app: grafana  # tell this deployment to target the pods with the label app: grafana
+  template:  # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: grafana
+        network: public
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.1.5
+          ports:
+            - containerPort: 3000 # port exposed by the container
+          volumeMounts:
+            - mountPath: /var/lib/rabbitmq
+              name: rabbitmq-data
+          envFrom:
+            - configMapRef:
+                name: env-vars
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc

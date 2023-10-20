@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: eshoponsteroids
+spec:
+  replicas: 1 # have only one instance of the pod
+  selector:
+    matchLabels:
+      app: prometheus  # tell this deployment to target the pods with the label app: prometheus
+  template:   # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: prometheus
+        network: public
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.47.2
+          ports:
+            - containerPort: 9090
+          volumeMounts: # mount the volume inside the container
+            - name: prometheus-config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+      volumes:   # mount the configmap as a volume
+        - name: prometheus-config
+          configMap:
+            name: prometheus-configmap
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: eshoponsteroids
+spec:
+  selector:
+    app: prometheus   # tell this service to target the pods with the label app: prometheus
+  type: ClusterIP # expose the service inside the cluster
+  ports:
+    - port: 9090  # port exposed by the service
+      targetPort: 9090  # port exposed by the container

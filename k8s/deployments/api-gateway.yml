@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: api-gateway # name of the deployment
+  namespace: eshoponsteroids
+spec:
+  serviceName: api-gateway
+  replicas: 1 # have only one instance of the pod
+  selector:
+    matchLabels:
+      app: api-gateway  # tell this deployment to target the pods with the label app: api-gateway
+  template:   # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: api-gateway
+        network: public
+    spec:
+      containers:
+        - name: api-gateway
+          image: badasstechie/eshoponsteroids-api-gateway:latest  # image to be pulled from Docker Hub
+          imagePullPolicy: Always   # always pull the image from Docker Hub even if it exists locally
+          ports:
+            - containerPort: 8080 # port exposed by the container
+          envFrom:
+            - configMapRef:
+                name: env-vars
+
+---
+
+# service to expose deployment inside the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: eshoponsteroids
+spec:
+  type: ClusterIP # expose the service inside the cluster
+  ports:
+    - port: 8080  # port exposed by the service
+      targetPort: 8080  # port exposed by the container
+  selector:
+    app: api-gateway  # tell this service to target the pods with the label app: api-gateway

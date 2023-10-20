@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipkin
+  namespace: eshoponsteroids
+spec:
+  replicas: 1 # have only one instance of the pod
+  selector:
+    matchLabels:
+      app: zipkin  # tell this deployment to target the pods with the label app: api-gateway
+  template:  # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: zipkin
+        network: public
+    spec:
+      containers:
+        - name: zipkin
+          image: openzipkin/zipkin-slim:2.24.2
+          ports:
+            - containerPort: 9411 # port exposed by the container
+
+---
+
+# service to expose deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+  namespace: eshoponsteroids
+spec:
+  type: ClusterIP # expose the service inside the cluster
+  selector:
+    app: zipkin  # tell this service to target the pods with the label app: api-gateway
+  ports:
+    - port: 9411  # port exposed by the service
+      targetPort: 9411  # port exposed by the container

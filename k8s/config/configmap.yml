@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-vars
+  namespace: eshoponsteroids
+data:
+  CART_DB_URL: "redis://cart-db:6379"
+  GF_LOG_LEVEL: "warn"
+  DISCOVERY_SERVER_HOST: "discovery-server"
+  IDENTITY_DB_URL: "jdbc:postgresql://identity-db:5432/identity"
+  ORDER_DB_URL: "jdbc:postgresql://order-db:5432/order"
+  PRODUCT_DB_URL: "mongodb://product-db:27017/product"
+  RABBITMQ_BASE: "amqp://rabbitmq:5672"
+  ZIPKIN_BASE: "http://zipkin:9411"

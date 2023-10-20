@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: eshoponsteroids
+spec:
+  replicas: 1 # have only one instance of the pod
+  selector:
+    matchLabels:
+      app: rabbitmq  # tell this deployment to target the pods with the label app: api-gateway
+  template:  # template for the pods created by this deployment
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3
+          ports:     # ports exposed by the container
+            - containerPort: 5672
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: grafana-data
+      volumes:
+        - name: grafana-data
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+
+---
+
+# service to expose deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: eshoponsteroids
+spec:
+  type: ClusterIP # expose the service inside the cluster
+  selector:
+    app: rabbitmq # tell this service to target the pods with the label app: api-gateway
+  ports:
+    - port: 5672  # port exposed by the service
+      targetPort: 5672  # port exposed by the container
