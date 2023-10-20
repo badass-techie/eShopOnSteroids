@@ -9,6 +9,8 @@ services:
   rabbitmq:
     image: rabbitmq:3
     restart: unless-stopped
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
   discovery-server:
     image: hashicorp/consul:1.16
@@ -159,6 +161,7 @@ services:
 
 
 volumes:
+  rabbitmq-data:
   cart-db:
   identity-db:
   order-db:
