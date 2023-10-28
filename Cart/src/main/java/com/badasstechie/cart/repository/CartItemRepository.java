@@ -24,6 +24,10 @@ public class CartItemRepository {
         redisTemplate.opsForHash().put(userId.toString(), cartItem.getProductId(), cartItem);
     }
 
+    public CartItem findByUserIdAndProductId(Long userId, String productId) {
+        return (CartItem)redisTemplate.opsForHash().get(userId.toString(), productId);
+    }
+
     public List<CartItem> findAllByUserId(Long userId) {
         return redisTemplate.opsForHash().values(userId.toString()).stream()
                 .map(cartItem -> (CartItem) cartItem)

@@ -42,15 +42,21 @@ public class CartService {
     }
 
     public CartResponse addToCart(CartItemRequest cartItemRequest, Long userId) {
-        CartItem cartItem = CartItem.builder()
-                        .productId(cartItemRequest.productId())
-                        .productName(cartItemRequest.productName())
-                        .unitPrice(cartItemRequest.unitPrice())
-                        .quantity(cartItemRequest.quantity())
-                        .build();
+        if (cartItemRepository.findByUserIdAndProductId(userId, cartItemRequest.productId()) == null) {
+            CartItem cartItem = CartItem.builder()
+                    .productId(cartItemRequest.productId())
+                    .productName(cartItemRequest.productName())
+                    .unitPrice(cartItemRequest.unitPrice())
+                    .quantity(cartItemRequest.quantity())
+                    .build();
 
-        cartItemRepository.save(cartItem, userId);
-        return getCartItems(userId);
+            cartItemRepository.save(cartItem, userId);
+            return getCartItems(userId);
+        }
+        else {
+            // if product already in cart increment by 1
+            return incrementQuantity(userId, cartItemRequest.productId());
+        }
     }
 
     public CartResponse getCartItems(Long userId) {
