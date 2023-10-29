@@ -4,7 +4,7 @@
 
 [![Build](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml/badge.svg?branch=main)](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml) [![Issues](https://img.shields.io/github/issues/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/issues) [![Pull-Requests](https://img.shields.io/github/issues-pr/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/pulls) ![Stars](https://img.shields.io/github/stars/badass-techie/eShopOnSteroids) ![Forks](https://img.shields.io/github/forks/badass-techie/eShopOnSteroids)
 
-eShopOnSteroids is a well-architected, distributed, event-driven, domain-driven, server-side e-commerce application powered by the following building blocks of microservices:
+eShopOnSteroids is a well-architected, distributed, event-driven, cloud-first e-commerce platform powered by the following building blocks of microservices:
 
 1. API Gateway (Spring Cloud Gateway)
 2. Service Discovery (HashiCorp Consul)
@@ -27,7 +27,7 @@ Note: If you are interested in this project, no better way to show it than ★ s
 
 ## Architecture
 
-The architecture proposes a microservices oriented implementation where each microservice is responsible for a single business capability. The microservices are deployed in a containerized environment (Docker) and managed by a control loop (Kubernetes) which compares the state of each microservice to the desired state, and takes necessary actions to eventually arrive at the desired state.
+The architecture proposes a microservices oriented implementation where each microservice is responsible for a single business capability. The microservices are deployed in a containerized environment (Docker) and orchestrated by a control loop (Kubernetes) which continuously compares the state of each microservice to the desired state, and takes necessary actions to arrive at the desired state.
 
 Each microservice stores its data in its own database tailored to its requirements, such as an In-Memory Database for a shopping cart whose persistence is short-lived, a Document Database for a product catalog for its flexibility, or a Relational Database for an order management system for its ACID properties.
 
@@ -64,115 +64,263 @@ Admin services include:
 
 - [Docker](https://docs.docker.com/get-docker/)
 
-### Basic Scenario
+### Basic Scenarios
 
 #### Deploy containers with docker compose
 
-1. (Optional) Run the following command to build the images locally:
+1. Create the env file and fill in the missing values
 
-```bash
-docker compose build
-```
+    ```bash
+    cp .env.example .env
+    vi .env
+    ...
+    ```
 
-It will take a few minutes. Alternatively, you can skip this step and the images will be pulled from Docker Hub.
+    Then:
 
-Then:
+2. (Optional) Run the following command to build the images locally:
 
-2. Create the env file and fill in the missing values
+    ```bash
+    docker compose build
+    ```
 
-```bash
-cp .env.example .env
-vi .env
-...
-```
+    It will take a few minutes. Alternatively, you can skip this step and the images will be pulled from Docker Hub.
 
 3. Start the containers
 
-```bash
-docker compose up
-```
+    ```bash
+    docker compose up
+    ```
 
 You can now access the application at port 8080 locally
-
-### Advanced Scenarios
 
 #### Deploy to local Kubernetes cluster
 
 1. Ensure you have enabled Kubernetes in Docker Desktop as below:
 
-![Enable Kubernetes](./diagrams/docker-desktop-kubernetes.png)
+    ![Enable Kubernetes](./diagrams/docker-desktop-kubernetes.png)
 
-(or alternatively, install [Minikube](https://minikube.sigs.k8s.io/docs/start/) and start it with `minikube start`)
+    (or alternatively, install [Minikube](https://minikube.sigs.k8s.io/docs/start/) and start it with `minikube start`)
 
-Then:
+    Then:
 
-2. Create the env file and fill in the missing values
+2. Enter the directory containing the Kubernetes manifests
 
-```bash
-cd k8s
-cp ./config/.env.example ./config/.env
-vi ./config/.env
-...
-```
+    ```bash
+    cd k8s
+    ```
 
-3. Create the namespace
+3. Create the env file and fill in the missing values
 
-```bash
-kubectl apply -f ./namespace
-```
+    ```bash
+    cp ./config/.env.example ./config/.env
+    vi ./config/.env
+    ...
+    ```
 
-4. Change the context to the namespace
+4. Create the namespace
 
-```bash
-kubectl config set-context --current --namespace=eshoponsteroids
-```
+    ```bash
+    kubectl apply -f ./namespace
+    ```
 
-4. Create Kubernetes secret from the env file
+5. Change the context to the namespace
 
-```bash
-kubectl create secret generic env-secrets --from-env-file=./config/.env --namespace=eshoponsteroids
-```
+    ```bash
+    kubectl config set-context --current --namespace=eshoponsteroids
+    ```
 
-5. Apply the configs
+6. Create Kubernetes secret from the env file
 
-```bash
-kubectl apply -f ./config
-```
+    ```bash
+    kubectl create secret generic env-secrets --from-env-file=./config/.env
+    ```
 
-6. Create the persistent volumes
+7. Apply the configmaps
 
-```bash
-kubectl apply -f ./volumes
-```
+    ```bash
+    kubectl apply -f ./config
+    ```
 
-7. Install kubernetes metrics server (needed to scale microservices based on metrics)
+8. Install kubernetes metrics server (needed to scale microservices based on metrics)
 
-```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
+    ```bash
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    ```
 
-8. Deploy the containers
+9. Deploy the containers
 
-```bash
-kubectl apply -f ./deployments
-```
+    ```bash
+    kubectl apply -f ./deployments
+    ```
 
-9. Expose the API gateway and admin services
+10. Expose the API gateway and admin services
 
-```bash
-kubectl apply -f ./networking/node-port.yml
-```
+    ```bash
+    kubectl apply -f ./networking/node-port.yml
+    ```
 
 You can now access the application at port 30080 locally
 
+To tear everything down, run the following command:
+
+```bash
+kubectl delete namespace eshoponsteroids
+```
+
 Future work:
 
-- Simplify the deployment process by using Helm charts
-- Customize configs with Kustomize
+- Simplify the deployment process by templating similar manifests with Helm
+- Overlay/patch manifests to tailor them to different environments (dev, staging, prod, ...) using Kustomize
+
+### Advanced Scenario
 
 #### Deploy to AWS EKS cluster
 
-Coming soon...
+Typically, DevOps engineers provision cloud resources, and developers only focus on deploying code to these resources. However, as a developer, to be able to design cloud-native applications such as this one, it's important to understand the basics of the infrastructure on which your code runs. That is why we will provision our own Kubernetes cluster on AWS EKS (Elastic Kubernetes Service) for our application.
+
+For this section, in addition to Docker you will need:
+
+- Basic knowledge of the AWS platform
+- An AWS account
+- AWS IAM user with administrator access
+- AWS CLI configured with the IAM user's credentials (run `aws configure`)
+
+Here is a breakdown of the resources we will provision:
+
+- VPC (Virtual Private Cloud): a virtual network where our cluster will reside
+- Subnets: 2 public and 2 private subnets in different availability zones (required by EKS to ensure high availability of the cluster)
+- Internet Gateway: allows external access to our VPC
+- NAT Gateway: allows our private subnets to access the internet
+- Security Groups: for controlling inbound and outbound traffic to our cluster
+- IAM Roles: for granting permissions to our cluster to access other AWS services and perform actions on our behalf
+- EKS Cluster: the Kubernetes cluster itself
+- EKS Node Group: the worker nodes that will run our containers
+
+To provision the cluster, we will use Terraform as opposed to AWS Console or eksctl. [What is Terraform and how does it simplify infrastructure management?](https://www.ibm.com/topics/terraform) All the above resources are already defined as terraform manifests and what is left to do is to apply them to our AWS account.
+
+Thus far we have applied the approach used by Terraform to create and manage resources (called a declarative approach) in Docker Compose and Kubernetes. Its main advantage is that it is reusable and always yields the same results.
+
+Let us start by installing Terraform (if you haven't already):
+
+Windows (20H2 or later):
+
+```bash
+winget install HashiCorp.Terraform
+```
+
+Mac:
+
+```bash
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+```
+
+Linux:
+
+```bash
+curl -O https://releases.hashicorp.com/terraform/1.6.2/terraform_1.6.2_linux_amd64.zip
+unzip terraform_*_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+terraform -v    # verify installation
+```
+
+Then:
+
+1. Enter the directory containing the terraform manifests
+
+    ```bash
+    cd terraform
+    ```
+
+2. Initialize Terraform
+
+    ```bash
+    terraform init
+    ```
+
+    This step downloads the required providers (AWS, Kubernetes, Helm, ...) and plugins.
+
+3. Generate an execution plan to see what resources will be created
+
+    ```bash
+    terraform plan -out=tfplan
+    ```
+
+4. Apply the execution plan
+
+    ```bash
+    terraform apply tfplan
+    ```
+
+    This step will take approximately 15 minutes. You can monitor the progress in the AWS Console.
+
+5. Configure kubectl to connect to the cluster
+
+    ```bash
+    aws eks update-kubeconfig --region us-east-1 --name eshoponsteroids
+    ```
+
+6. Verify that the cluster is up and running
+
+    ```bash
+    kubectl get nodes
+    ```
+
+    The output should be similar to:
+
+    ```bash
+    NAME                                      STATUS   ROLES    AGE   VERSION
+    ip-10-0-8-72.us-east-1.compute.internal   Ready    <none>   10m   v1.28.1-eks-55daa9d
+    ```
+
+Let us now deploy our application to the cluster:
+
+1. Go back to the root directory of the project
+
+    ```bash
+    cd ..
+    ```
+
+2. Execute steps 2 to 9 of [Deploy to local Kubernetes cluster](#deploy-to-local-kubernetes-cluster).
+
+3. Run `kubectl get deployments --watch` and `kubectl get statefulsets --watch` to monitor the progress.
+
+4. Request a load balancer from AWS to expose the application's API gateway outside the cluster once deployments are ready
+
+    ```bash
+    kubectl apply -f ./networking/load-balancer.yml
+    ```
+
+    Run `kubectl get svc | grep LoadBalancer` to get the load balancer's address. It should be similar to:
+
+    ```bash
+    load-balancer      LoadBalancer   172.20.131.96    a890f7fb3c6da8536b7dbdbdf3281d23-94553621.us-east-1.elb.amazonaws.com   8080:31853/TCP,8500:32310/TCP,9411:30272/TCP,9090:32144/TCP,3000:31492/TCP   60s
+    ```
+
+    The fourth column is the load balancer's address. Go to the AWS EC2 Console's Load Balancer feature and verify that the load balancer has been created. ![Elastic Load Balancer](./diagrams/aws-elb.png)
+
+You can now access the application at port 8080 with the hostname as the load balancer's address. You can also access the admin services with their respective ports.
+
+To tear down the infrastructure, run the following commands:
+
+```bash
+kubectl delete namespace eshoponsteroids
+terraform destroy
+```
+
+Remember to Change the context of kubectl back to your local cluster if you have one:
+
+```bash
+kubectl config get-contexts
+kubectl config delete-context [name-of-remote-cluster]
+kubectl config use-context [name-of-local-cluster]
+```
+
+Future work:
+
+- Add AWS EKS CSI driver to terraform which will allow provisioning of AWS EBS volumes for Kubernetes PVCs
+- Use an Ingress Controller (e.g. Nginx) instead of a Load Balancer to expose the API Gateway outside the cluster
 
 ## Usage
 

@@ -44,3 +44,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Terraform ###
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.hcl
+**/tfplan
+**/.terraform/*
