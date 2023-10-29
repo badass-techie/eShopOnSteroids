@@ -19,12 +19,11 @@ spec:
           ports:     # ports exposed by the container
             - containerPort: 5672
           volumeMounts:
-            - mountPath: /var/lib/grafana
-              name: grafana-data
+            - mountPath: /var/lib/rabbitmq
+              name: rabbitmq-data
       volumes:
-        - name: grafana-data
-          persistentVolumeClaim:
-            claimName: grafana-pvc
+        - name: rabbitmq-data
+          emptyDir: {}
 
 ---
 

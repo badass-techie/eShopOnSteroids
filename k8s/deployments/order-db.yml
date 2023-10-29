@@ -42,8 +42,7 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: order-db
-          persistentVolumeClaim:
-            claimName: order-db-pvc
+          emptyDir: {}
 
 ---
 
