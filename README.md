@@ -183,8 +183,7 @@ For this section, in addition to Docker you will need:
 
 - Basic knowledge of the AWS platform
 - An AWS account
-- AWS IAM user with administrator access
-- AWS CLI configured with the IAM user's credentials (run `aws configure`)
+- AWS CLI configured with the credentials of either your account or an IAM user with administrator access (run `aws configure`)
 
 Here is a breakdown of the resources we will provision:
 
