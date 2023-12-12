@@ -21,7 +21,7 @@ This code follows best practices such as:
 - Integration Testing (Testcontainers)
 - Design Patterns (Builder, Singleton, PubSub, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, spring cloud, spring boot, spring cloud gateway, hashicorp consul, hashicorp vault, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
+> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, hashicorp consul, hashicorp vault, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
 
 Note: If you are interested in this project, no better way to show it than ★ starring the repository!
 
@@ -130,7 +130,7 @@ You can now access the application at port 8080 locally
     kubectl config set-context --current --namespace=eshoponsteroids
     ```
 
-6. Create Kubernetes secret from the env file
+6. Create Kubernetes secrets from the env file
 
     ```bash
     kubectl create secret generic env-secrets --from-env-file=./config/.env
