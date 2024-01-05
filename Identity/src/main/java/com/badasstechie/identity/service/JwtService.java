@@ -16,8 +16,9 @@ public class JwtService {
     private final JwtEncoder encoder;
 
     /**
-     * Generates a JWT token for the given authentication object
+     * Generates a JWT token for the given subject
      *
+     * @param userId the subject of the token
      * @param scope the roles of the user
      * @return Pair<> of token and expiration time
      */

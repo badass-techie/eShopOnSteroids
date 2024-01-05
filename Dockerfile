@@ -22,18 +22,11 @@ RUN cp public.pem /build/Identity/src/main/resources/certs/public.pem
 RUN mkdir -p /build/ApiGateway/src/main/resources/certs
 RUN cp public.pem /build/ApiGateway/src/main/resources/certs/public.pem
 
-# Overwrite application.yml with application-docker.yml for each maven module
-RUN cp ApiGateway/src/main/resources/application-docker.yml ApiGateway/src/main/resources/application.yml
-RUN cp Cart/src/main/resources/application-docker.yml Cart/src/main/resources/application.yml
-RUN cp Identity/src/main/resources/application-docker.yml Identity/src/main/resources/application.yml
-RUN cp Order/src/main/resources/application-docker.yml Order/src/main/resources/application.yml
-RUN cp Product/src/main/resources/application-docker.yml Product/src/main/resources/application.yml
-
 # Build the project
 RUN mvn clean package  -DskipTests
 
 
-# specify targets for each maven module
+# specify targets for each microservice
 # ApiGateway
 # Use lightweight jre as base image
 FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS api-gateway

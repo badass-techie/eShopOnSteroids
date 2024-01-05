@@ -1,0 +1,217 @@
+version: '3.8'
+services:
+  keygen:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: keygen
+    volumes:
+      - jwt-certs:/certs
+
+  zipkin:
+    image: openzipkin/zipkin-slim:2.24.2
+    restart: unless-stopped
+    ports:
+      - "9411:9411"
+
+  rabbitmq:
+    image: masstransit/rabbitmq:3
+    restart: unless-stopped
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  discovery-server:
+    image: hashicorp/consul:1.16
+    command: ["consul", "agent", "-dev", "-client", "0.0.0.0"]
+    restart: unless-stopped
+    ports:
+      - "8500:8500"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: maven-base
+    volumes:
+      - .:/app
+      - jwt-certs:/app/ApiGateway/src/main/resources/certs
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    command: mvn spring-boot:run -pl ApiGateway 
+    restart: unless-stopped
+    depends_on:
+      discovery-server:
+        condition: service_started
+
+  cart-db:
+    image: redis:7.2.1
+    restart: unless-stopped
+    volumes:
+      - cart-db:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  cart:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: maven-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: mvn spring-boot:run -pl Cart
+    restart: unless-stopped
+    depends_on:
+      discovery-server:
+        condition: service_started
+      cart-db:
+        condition: service_healthy
+
+  identity-db:
+    image: postgres:16.0
+    restart: unless-stopped
+    volumes:
+      - identity-db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=$IDENTITY_DB_USERNAME
+      - POSTGRES_PASSWORD=$IDENTITY_DB_PASSWORD
+      - POSTGRES_DB=identity
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  identity:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: maven-base
+    volumes:
+      - .:/app
+      - jwt-certs:/app/Identity/src/main/resources/certs
+    working_dir: /app
+    env_file:
+      - .env
+    command: mvn spring-boot:run -pl Identity
+    restart: unless-stopped
+    depends_on:
+      discovery-server:
+        condition: service_started
+      identity-db:
+        condition: service_healthy
+
+  order-db:
+    image: postgres:16.0
+    restart: unless-stopped
+    volumes:
+      - order-db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=$ORDER_DB_USERNAME
+      - POSTGRES_PASSWORD=$ORDER_DB_PASSWORD
+      - POSTGRES_DB=order
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  order:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: maven-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: mvn spring-boot:run -pl Order
+    restart: unless-stopped
+    depends_on:
+      discovery-server:
+        condition: service_started
+      order-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  product-db:
+    image: mongo:5.0-focal
+    restart: unless-stopped
+    volumes:
+      - product-db:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  product:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: maven-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: mvn spring-boot:run -pl Product
+    restart: unless-stopped
+    depends_on:
+      discovery-server:
+        condition: service_started
+      product-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:10.1.5
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_LOG_LEVEL=warn
+    depends_on:
+      - prometheus
+
+
+volumes:
+  jwt-certs:
+  rabbitmq-data:
+  cart-db:
+  identity-db:
+  order-db:
+  product-db:
+  grafana-data:

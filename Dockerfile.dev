@@ -1,0 +1,21 @@
+# This image generates the keys required for JWT authentication
+FROM alpine:3.14 AS keygen
+
+RUN apk add --no-cache openssl
+
+WORKDIR /certs
+
+RUN openssl genrsa -out keypair.pem 2048 && \
+    openssl rsa -in keypair.pem -pubout -out public.pem && \
+    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem
+
+
+# This is a base image for all maven microservices
+FROM maven:3.8.3-openjdk-17 AS maven-base
+
+COPY . /app
+
+WORKDIR /app
+
+# Build all maven modules
+RUN mvn clean install -DskipTests

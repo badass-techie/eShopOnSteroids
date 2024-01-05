@@ -64,7 +64,39 @@ Admin services include:
 
 - [Docker](https://docs.docker.com/get-docker/)
 
-### Basic Scenarios
+Yes, that's it!
+
+### Development
+
+1. Create the env file and fill in the missing values
+
+    ```bash
+    cp .env.example .env
+    vi .env
+    ...
+    ```
+
+2. Start the containers
+
+    ```bash
+    docker compose -f docker-compose.dev.yml up
+    ```
+
+    The first time you run this command, it will take a few minutes to build the images, after which you should be able to access the application at port 8080 locally. Changes to the source code will be automatically reflected in the containers without any extra steps.
+
+    To stop the containers, run:
+
+    ```bash
+    docker compose -f docker-compose.dev.yml down
+    ```
+
+    To remove saved data along with the containers, run the following command:
+
+    ```bash
+    docker compose -f docker-compose.dev.yml down -v
+    ```
+
+### Production
 
 #### Deploy containers with docker compose
 
@@ -172,8 +204,6 @@ Future work:
 
 - Simplify the deployment process by templating similar manifests with Helm
 - Overlay/patch manifests to tailor them to different environments (dev, staging, prod, ...) using Kustomize
-
-### Advanced Scenario
 
 #### Deploy to AWS EKS cluster
 
