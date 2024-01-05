@@ -7,19 +7,22 @@ server:
 spring:
   application:
     name: product
+  devtools:
+    restart:
+      additional-paths: src/main
   data:
     mongodb:
-      uri: mongodb://localhost:27017/eshoponsteroidsproductmicroservice
+      uri: ${PRODUCT_DB_URL}
   zipkin:
-    base-url: http://localhost:9411
+    base-url: ${ZIPKIN_BASE}
   sleuth:
     sampler:
       probability: 1.0
   rabbitmq:
-    addresses: amqp://localhost:5672
+    addresses: ${RABBITMQ_BASE}
   cloud:
     consul:
-      host: localhost # Consul server host
+      host: ${DISCOVERY_SERVER_HOST} # Consul server host
       port: 8500 # Consul server port
       discovery:
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}

@@ -52,3 +52,4 @@ build/
 *.hcl
 **/tfplan
 **/.terraform/*
+/.mvn/wrapper/maven-wrapper.jar

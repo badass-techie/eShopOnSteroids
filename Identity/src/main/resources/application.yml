@@ -7,10 +7,13 @@ server:
 spring:
   application:
     name: identity
+  devtools:
+    restart:
+      additional-paths: src/main
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/eshoponsteroidsidentitymicroservice'
-    username: 'postgres'
-    password: '0000'
+    url: ${IDENTITY_DB_URL}
+    username: ${IDENTITY_DB_USERNAME}
+    password: ${IDENTITY_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,13 +23,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   zipkin:
-    base-url: http://localhost:9411
+    base-url: ${ZIPKIN_BASE}
   sleuth:
     sampler:
       probability: 1.0
   cloud:
     consul:
-      host: localhost # Consul server host
+      host: ${DISCOVERY_SERVER_HOST} # Consul server host
       port: 8500 # Consul server port
       discovery:
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}

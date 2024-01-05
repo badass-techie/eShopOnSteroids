@@ -1,5 +1,5 @@
 server:
-    port: 8080
+  port: 8080
 
 rsa:
   public-key: classpath:certs/public.pem
@@ -8,6 +8,9 @@ rsa:
 spring:
   application:
     name: api-gateway
+  devtools:
+    restart:
+      additional-paths: src/main
   cloud:
     gateway:
       routes:
@@ -41,13 +44,13 @@ spring:
               - PATCH
               - DELETE
     consul:
-      host: localhost # Consul server host
+      host: ${DISCOVERY_SERVER_HOST} # Consul server host
       port: 8500 # Consul server port
       discovery:
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
         serviceName: ${spring.application.name}
   zipkin:
-    base-url: http://localhost:9411
+    base-url: ${ZIPKIN_BASE}
   sleuth:
     sampler:
       probability: 1.0
