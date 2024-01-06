@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,9 +49,9 @@ public class OrderServiceTest {
         orderServiceSpy = spy(orderService);
 
         OrderItem orderItem = new OrderItem(1L, "1", "Product 1", BigDecimal.valueOf(10), 1);
-        order = new Order(1L, 1L, "Order 1", List.of(orderItem), OrderStatus.CREATED, "Address 1", Instant.now());
+        order = new Order(1L, 1L, "Order 1", List.of(orderItem), OrderStatus.AWAITING_PAYMENT, "Address 1", Instant.now());
         OrderItemDto orderItemDto = new OrderItemDto(orderItem.getProductId(), orderItem.getProductName(), "", orderItem.getUnitPrice(), orderItem.getQuantity());
-        orderRequest = new OrderRequest(List.of(orderItemDto), "Address 1");
+        orderRequest = new OrderRequest(List.of(orderItemDto), "Address 1", "mpesa", Map.of("phoneNumber", "254700000000"));
         availableStock = List.of(new ProductStockDto(orderItem.getProductId(), orderItem.getQuantity()));
     }
 

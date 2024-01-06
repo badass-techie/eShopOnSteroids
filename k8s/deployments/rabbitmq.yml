@@ -12,15 +12,23 @@ spec:
     metadata:
       labels:
         app: rabbitmq
+        network: public # label to indicate that this pod should be exposed to the public network
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:3
+          image: masstransit/rabbitmq:3
           ports:     # ports exposed by the container
             - containerPort: 5672
+            - containerPort: 15672
           volumeMounts:
             - mountPath: /var/lib/rabbitmq
               name: rabbitmq-data
+          readinessProbe: # check if the container is ready to accept traffic
+            exec:
+              command: ["rabbitmqctl", "status"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
       volumes:
         - name: rabbitmq-data
           emptyDir: {}

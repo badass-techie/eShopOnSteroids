@@ -18,14 +18,18 @@ spec:
       port: 9411
       targetPort: 9411
       nodePort: 30082
+    - name: rabbitmq-management
+      port: 15672
+      targetPort: 15672
+      nodePort: 30083
     - name: prometheus
       port: 9090
       targetPort: 9090
-      nodePort: 30083
+      nodePort: 30084
     - name: grafana
       port: 3000
       targetPort: 3000
-      nodePort: 30084
+      nodePort: 30085
   selector:
     network: public   # tell this service to target the pods with the label network: public
     

@@ -14,11 +14,8 @@ public class RabbitMQConfig {
     @Value("${message-bus.exchange-name}")
     private String exchangeName;
 
-    @Value("${message-bus.queue-name}")
+    @Value("${message-bus.queues.update-stock}")
     private String queueName;
-
-    @Value("${message-bus.routing-key}")
-    private String routingKey;
 
     @Bean
     public Queue queue() {
@@ -35,7 +32,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(queue)
                 .to(exchange)
-                .with(routingKey);
+                .with(queueName);   // use queue name as routing key
     }
 
     @Bean
@@ -46,8 +43,10 @@ public class RabbitMQConfig {
     @Bean
     public AmqpTemplate template(ConnectionFactory connectionFactory) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setExchange(exchangeName);
+        template.setRoutingKey(queueName);
         template.setMessageConverter(messageConverter());
-        return  template;
+        return template;
     }
 }
 
