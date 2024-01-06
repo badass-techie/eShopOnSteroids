@@ -80,3 +80,26 @@ COPY --from=0 /build/Product/target/product-1.0-SNAPSHOT.jar product.jar
 
 # Run the jar file
 ENTRYPOINT ["java","-jar","product.jar"]
+
+
+# Payment
+# Use lightweight python image as base image
+FROM python:3.10-alpine AS payment
+
+# make sure all messages always reach console
+ENV PYTHONUNBUFFERED=1
+
+# prevent writing bytecode
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Copy the entire python project
+COPY Payment /Payment
+
+# Set working directory
+WORKDIR /Payment
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Run the python file
+ENTRYPOINT ["python", "app.py"]

@@ -84,9 +84,11 @@ resilience4j:
 
 # custom properties for our message bus
 message-bus:
-  exchange-name: 'eshoponsteroids'  # name of the exchange
-  queue-name: 'new-order' # name of the queue
-  routing-key: 'new-order'  # used to route messages from the exchange to the specified queue
+  exchange-name: 'eshoponsteroids'
+  queues:
+    update-stock: 'update-stock'
+    order-awaiting-payment: 'order-awaiting-payment'
+    order-payment-processed: 'order-payment-processed'
 
 springdoc:
   api-docs:

@@ -17,7 +17,7 @@ eShopOnSteroids is a well-architected, distributed, event-driven, cloud-first e-
 
 This code follows best practices such as:
 
-- Unit Testing (JUnit 5, Mockito)
+- Unit Testing (JUnit 5, Mockito, Pytest)
 - Integration Testing (Testcontainers)
 - Design Patterns (Builder, Singleton, PubSub, ...)
 
@@ -46,8 +46,9 @@ Below is a visual representation:
 - All microservices send regular heartbeats to the Discovery Server which helps them locate each other as they may have multiple instances running hence different IP addresses.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Message Bus to receive notifications of new orders and update the stock accordingly.
-- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability of the products in the order pre-checkout, and publishes a message to the Message Bus when an order is placed successfully.
-- The gRPC communication between the microservices is fault-tolerant and resilient to transient failures thanks to Resilience4j Circuit Breaker.
+- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout, and publishes messages to the Message Bus to initiate a payment and to update the stock post-checkout.
+- The gRPC communication between the microservices is fault-tolerant thanks to a circuit breaker.
+- The Payment Microservice handles payment processing. It's subscribed to the Message Bus to receive notifications of new orders and initiate a payment. It does not sit behind the API Gateway as it is not directly accessible by the user. It is also stateless and does not store any data.
 
 Admin services include:
 
@@ -361,24 +362,43 @@ The interface (a Single-Page Application) is still a work in progress, but the a
 
 ## Testing
 
-### Prerequisites
+First, enter the container of the microservice you want to test:
 
-- Java 17+
-- Docker
+```bash
+docker exec -it [container-id] bash
+```
+
+For example:
+
+```bash
+docker exec -it eshoponsteroids-cart-1 bash
+```
 
 ### Unit tests
 
-To run the unit tests, run the following command:
+To run Java unit tests, run the following command:
 
 ```bash
-mvnw test
+mvn test
+```
+
+To run Python unit tests, run the following command:
+
+```bash
+pytest
 ```
 
 ### Integration tests
 
 - Make sure you have Docker installed and running
-- Run the following command to start the testcontainers:
+- Run the following command in your local system (not the containers):
 
 ```bash
 mvnw verify
 ```
+
+## Third Party Integrations
+
+- [Stripe](https://stripe.com/) for credit and debit card payments
+- [Daraja](https://developer.safaricom.co.ke/) for M-Pesa payments (M-Pesa is a mobile money service in Kenya)
+- [Africa's Talking](https://africastalking.com/) for SMS notifications (WIP)

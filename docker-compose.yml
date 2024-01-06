@@ -7,10 +7,17 @@ services:
       - "9411:9411"
 
   rabbitmq:
-    image: rabbitmq:3
+    image: masstransit/rabbitmq:3
     restart: unless-stopped
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   discovery-server:
     image: hashicorp/consul:1.16
@@ -31,7 +38,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - discovery-server
+      discovery-server:
+        condition: service_started
 
   cart-db:
     image: redis:7.2.1
@@ -54,7 +62,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - cart-db
+      discovery-server:
+        condition: service_started
+      cart-db:
+        condition: service_healthy
 
   identity-db:
     image: postgres:16.0
@@ -83,7 +94,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - identity-db
+      discovery-server:
+        condition: service_started
+      identity-db:
+        condition: service_healthy
 
   order-db:
     image: postgres:16.0
@@ -112,8 +126,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - order-db
-      - rabbitmq
+      discovery-server:
+        condition: service_started
+      order-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   product-db:
     image: mongo:5.0-focal
@@ -136,8 +154,25 @@ services:
     env_file:
       - .env
     depends_on:
-      - product-db
-      - rabbitmq
+      discovery-server:
+        condition: service_started
+      product-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payment
+    image: badasstechie/eshoponsteroids-payment
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:v2.47.2

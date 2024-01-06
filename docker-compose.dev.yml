@@ -186,6 +186,22 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  payment:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: payment
+    volumes:
+      - ./Payment:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: python app.py
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   prometheus:
     image: prom/prometheus:v2.47.2
     restart: unless-stopped

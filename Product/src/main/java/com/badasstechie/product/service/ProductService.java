@@ -128,8 +128,8 @@ public class ProductService {
         return new ResponseEntity<>("Stocks updated", HttpStatus.OK);
     }
 
-    @RabbitListener(queues = "${message-bus.queue-name}")
-    public void newOrderListener(List<ProductStockDto> productsOrdered){
+    @RabbitListener(queues = "${message-bus.queues.update-stock}")
+    public void updateProductStock(List<ProductStockDto> productsOrdered){
         log.info("Received new order: {}", productsOrdered);
 
         List<Product> products = new ArrayList<>();

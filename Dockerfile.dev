@@ -19,3 +19,19 @@ WORKDIR /app
 
 # Build all maven modules
 RUN mvn clean install -DskipTests
+
+
+# This image is used to build the payment microservice
+FROM python:3.10-slim AS payment
+
+# make sure all messages always reach console
+ENV PYTHONUNBUFFERED=1
+
+# prevent writing bytecode
+ENV PYTHONDONTWRITEBYTECODE=1
+
+COPY Payment /app
+
+WORKDIR /app
+
+RUN pip install -r requirements.txt

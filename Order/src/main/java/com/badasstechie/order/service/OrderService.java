@@ -1,9 +1,6 @@
 package com.badasstechie.order.service;
 
-import com.badasstechie.order.dto.OrderItemDto;
-import com.badasstechie.order.dto.OrderRequest;
-import com.badasstechie.order.dto.OrderResponse;
-import com.badasstechie.order.dto.ProductStockDto;
+import com.badasstechie.order.dto.*;
 import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
@@ -12,37 +9,37 @@ import com.badasstechie.product.grpc.ProductGrpcServiceGrpc;
 import com.badasstechie.product.grpc.ProductStocksRequest;
 import com.badasstechie.product.grpc.ProductStocksResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final AmqpTemplate updateStockTemplate, orderAwaitingPaymentTemplate;
 
     @GrpcClient("product-grpc-service")
     private ProductGrpcServiceGrpc.ProductGrpcServiceBlockingStub productGrpcService;
 
-    @Value("${message-bus.exchange-name}")
-    private String messageBusExchangeName;
-
-    @Value("${message-bus.routing-key}")
-    private String messageBusRoutingKey;
+    private final Map<String, List<String>> paymentRequirements = new HashMap<>();
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, RabbitTemplate rabbitTemplate) {
+    public OrderService(OrderRepository orderRepository, AmqpTemplate updateStockTemplate, AmqpTemplate orderAwaitingPaymentTemplate) {
         this.orderRepository = orderRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        this.updateStockTemplate = updateStockTemplate;
+        this.orderAwaitingPaymentTemplate = orderAwaitingPaymentTemplate;
+        paymentRequirements.put("stripe", List.of("cardToken"));
+        paymentRequirements.put("mpesa", List.of("phoneNumber"));
     }
 
     private OrderResponse mapOrderToResponse(Order order) {
@@ -82,6 +79,18 @@ public class OrderService {
     }
 
     public ResponseEntity<OrderResponse> placeOrder(OrderRequest orderRequest, Long userId) {
+        // validate the payment details
+        String paymentMethod = orderRequest.paymentMethod();
+        if (!paymentRequirements.containsKey(paymentMethod)) {
+            throw new RuntimeException("Unknown payment method");
+        }
+        
+        List<String> requiredFields = paymentRequirements.get(paymentMethod);
+        for (String field : requiredFields) {
+            if (!orderRequest.payerDetails().containsKey(field))
+                throw new RuntimeException(field + " not found but required for " + paymentMethod + " payment");
+        }
+
         List<ProductStockDto> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
 
         // throw exception if length of stocks and order items are not equal
@@ -100,18 +109,32 @@ public class OrderService {
                         .userId(userId)
                         .orderNumber(UUID.randomUUID().toString())
                         .items(orderRequest.items().stream().map(this::mapDtoToOrderItem).toList())
-                        .status(OrderStatus.CREATED)
+                        .status(OrderStatus.AWAITING_PAYMENT)
                         .deliveryAddress(orderRequest.deliveryAddress())
                         .created(Instant.now())
                         .build()
         );
 
-        // publish message to message bus with the product ids and quantities
+        // publish message to message bus for payment to be processed
+        OrderPaymentRequest paymentRequest = new OrderPaymentRequest(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getItems().stream().reduce(
+                        BigDecimal.ZERO,
+                        (subtotal, orderItem) -> subtotal.add(orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()))),
+                        BigDecimal::add
+                ),
+                "KES",
+                orderRequest.paymentMethod(),
+                orderRequest.payerDetails()
+        );
+        orderAwaitingPaymentTemplate.convertAndSend(paymentRequest);
+
+        // publish message to message bus for stock to be updated
         List<ProductStockDto> productsOrdered = order.getItems().stream()
                 .map(item -> new ProductStockDto(item.getProductId(), item.getQuantity()))
                 .toList();
-
-        rabbitTemplate.convertAndSend(messageBusExchangeName, messageBusRoutingKey, productsOrdered);
+        updateStockTemplate.convertAndSend(productsOrdered);
 
         return new ResponseEntity<>(mapOrderToResponse(order), HttpStatus.CREATED);
     }
@@ -125,6 +148,23 @@ public class OrderService {
         return response.getStocksList().stream()
                 .map(stock -> new ProductStockDto(stock.getId(), stock.getQuantity()))
                 .toList();
+    }
+
+    // update order status after payment has been processed
+    @RabbitListener(queues = "${message-bus.queues.order-payment-processed}")
+    public void updateOrderStatus(OrderPaymentResponse paymentResponse) {
+        Order order = orderRepository.findById(paymentResponse.orderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (paymentResponse.resultStatus() == PaymentResult.SUCCESS) {
+            order.setStatus(OrderStatus.SHIPPING);
+            orderRepository.save(order);
+        } else if (paymentResponse.resultStatus() == PaymentResult.FAILED) {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+        }
+
+        log.info("Payment processed for order number {}. Result: {}", paymentResponse.orderNumber(), paymentResponse.resultMessage());
     }
 
     public OrderResponse getOrder(Long id) {

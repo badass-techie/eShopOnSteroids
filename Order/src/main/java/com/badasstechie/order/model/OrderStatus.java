@@ -1,7 +1,7 @@
 package com.badasstechie.order.model;
 
 public enum OrderStatus {
-    CREATED,
+    AWAITING_PAYMENT,
     SHIPPING,
     COMPLETED,
     CANCELLED

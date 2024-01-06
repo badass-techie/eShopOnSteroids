@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  namespace: eshoponsteroids
+spec:
+  selector:
+    matchLabels:
+      app: payment
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+        - name: payment
+          image: badasstechie/eshoponsteroids-payment:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: env-vars
+          env:
+            - name: MPESA_BUSINESS_SHORTCODE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MPESA_BUSINESS_SHORTCODE
+            - name: MPESA_CONSUMER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MPESA_CONSUMER_KEY
+            - name: MPESA_CONSUMER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MPESA_CONSUMER_SECRET
+            - name: MPESA_PASSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MPESA_PASSKEY
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: STRIPE_SECRET_KEY
