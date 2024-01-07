@@ -18,13 +18,13 @@ spec:
           image: badasstechie/eshoponsteroids-product:latest  # image to be pulled from Docker Hub
           imagePullPolicy: Always   # always pull the image from Docker Hub even if it exists locally
           ports:
-            - containerPort: 8084 # port exposed by the container
+            - name: http
+              containerPort: 8084
+            - name: grpc
+              containerPort: 9898
           envFrom:
             - configMapRef:
                 name: env-vars
-          env:
-            - name: SERVER_PORT
-              value: "8084" # Override random port with one that is known so that we can expose it
           resources:
             limits:
               cpu: "750m"  # limit the CPU usage to 0.75 cores
@@ -42,8 +42,12 @@ metadata:
 spec:
   type: ClusterIP # expose the service inside the cluster
   ports:
-      - port: 8084  # port exposed by the service
-        targetPort: 8084  # port exposed by the container
+      - name: http
+        port: 8084
+        targetPort: 8084
+      - name: grpclb
+        port: 9898
+        targetPort: 9898
   selector:
     app: product  # tell this service to target the pods with the label app: product
 

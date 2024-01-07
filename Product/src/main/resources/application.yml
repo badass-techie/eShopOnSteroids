@@ -2,7 +2,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
-  port: 0
+  port: 8084
 
 spring:
   application:
@@ -20,20 +20,13 @@ spring:
       probability: 1.0
   rabbitmq:
     addresses: ${RABBITMQ_BASE}
-  cloud:
-    consul:
-      host: ${DISCOVERY_SERVER_HOST} # Consul server host
-      port: 8500 # Consul server port
-      discovery:
-        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-        serviceName: ${spring.application.name}
 
 grpc:
   server:
-    port: 0
+    port: 9898
 
-# custom properties for our message bus
-message-bus:
+# custom properties for our event bus
+event-bus:
   exchange-name: 'eshoponsteroids'  # name of the exchange
   queues:
     update-stock: 'update-stock' # name of the queue

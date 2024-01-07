@@ -15,22 +15,22 @@ spring:
     gateway:
       routes:
         - id: Product
-          uri: lb://product
+          uri: ${PRODUCT_MICROSERVICE_URL}
           predicates:
             - Path=/api/v*/product/**
 
         - id: Order
-          uri: lb://order
+          uri: ${ORDER_MICROSERVICE_URL}
           predicates:
             - Path=/api/v*/order/**
 
         - id: Identity
-          uri: lb://identity
+          uri: ${IDENTITY_MICROSERVICE_URL}
           predicates:
             - Path=/api/v*/identity/{segment}/**
 
         - id: Cart
-          uri: lb://cart
+          uri: ${CART_MICROSERVICE_URL}
           predicates:
             - Path=/api/v*/cart/**
       globalcors:
@@ -43,12 +43,6 @@ spring:
               - PUT
               - PATCH
               - DELETE
-    consul:
-      host: ${DISCOVERY_SERVER_HOST} # Consul server host
-      port: 8500 # Consul server port
-      discovery:
-        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-        serviceName: ${spring.application.name}
   zipkin:
     base-url: ${ZIPKIN_BASE}
   sleuth:

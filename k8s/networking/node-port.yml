@@ -10,26 +10,22 @@ spec:
       port: 8080  # port which is mapped to the targetPort
       targetPort: 8080  # port exposed by the deployment targeted by this service
       nodePort: 30080 # port exposed outside the cluster
-    - name: discovery-server
-      port: 8500
-      targetPort: 8500
-      nodePort: 30081
     - name: zipkin
       port: 9411
       targetPort: 9411
-      nodePort: 30082
+      nodePort: 30081
     - name: rabbitmq-management
       port: 15672
       targetPort: 15672
-      nodePort: 30083
+      nodePort: 30082
     - name: prometheus
       port: 9090
       targetPort: 9090
-      nodePort: 30084
+      nodePort: 30083
     - name: grafana
       port: 3000
       targetPort: 3000
-      nodePort: 30085
+      nodePort: 30084
   selector:
     network: public   # tell this service to target the pods with the label network: public
     

@@ -151,7 +151,7 @@ public class OrderService {
     }
 
     // update order status after payment has been processed
-    @RabbitListener(queues = "${message-bus.queues.order-payment-processed}")
+    @RabbitListener(queues = "${event-bus.queues.order-payment-processed}")
     public void updateOrderStatus(OrderPaymentResponse paymentResponse) {
         Order order = orderRepository.findById(paymentResponse.orderId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));

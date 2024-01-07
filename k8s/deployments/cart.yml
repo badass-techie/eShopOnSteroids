@@ -22,9 +22,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: env-vars
-          env:
-            - name: SERVER_PORT
-              value: "8081" # Override random port with one that is known so that we can expose it
           resources:
             limits:
               cpu: "500m"  # limit the CPU usage to 0.5 cores

@@ -1,5 +1,5 @@
 server:
-  port: 0 # random port
+  port: 8083
 
 spring:
   application:
@@ -26,18 +26,11 @@ spring:
       probability: 1.0
   rabbitmq:
     addresses: ${RABBITMQ_BASE}
-  cloud:
-    consul:
-      host: ${DISCOVERY_SERVER_HOST} # Consul server host
-      port: 8500 # Consul server port
-      discovery:
-        instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-        serviceName: ${spring.application.name}
 
 grpc:
   client:
     product-grpc-service:
-      address: 'discovery:///product'
+      address: ${PRODUCT_GRPC_SERVER_URL}
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
@@ -82,8 +75,8 @@ resilience4j:
       product-grpc-service:
         baseConfig: default # use default config above
 
-# custom properties for our message bus
-message-bus:
+# custom properties for our event bus
+event-bus:
   exchange-name: 'eshoponsteroids'
   queues:
     update-stock: 'update-stock'

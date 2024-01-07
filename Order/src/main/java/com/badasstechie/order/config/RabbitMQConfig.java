@@ -11,16 +11,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    @Value("${message-bus.exchange-name}")
+    @Value("${event-bus.exchange-name}")
     private String exchangeName;
 
-    @Value("${message-bus.queues.update-stock}")
+    @Value("${event-bus.queues.update-stock}")
     private String updateStockQueueName;
 
-    @Value("${message-bus.queues.order-awaiting-payment}")
+    @Value("${event-bus.queues.order-awaiting-payment}")
     private String orderAwaitingPaymentQueueName;
 
-    @Value("${message-bus.queues.order-payment-processed}")
+    @Value("${event-bus.queues.order-payment-processed}")
     private String orderPaymentProcessedQueueName;
 
     @Bean

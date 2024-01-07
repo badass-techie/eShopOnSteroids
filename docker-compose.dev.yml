@@ -27,13 +27,6 @@ services:
       timeout: 3s
       retries: 30
 
-  discovery-server:
-    image: hashicorp/consul:1.16
-    command: ["consul", "agent", "-dev", "-client", "0.0.0.0"]
-    restart: unless-stopped
-    ports:
-      - "8500:8500"
-
   api-gateway:
     build:
       context: .
@@ -49,9 +42,6 @@ services:
       - .env
     command: mvn spring-boot:run -pl ApiGateway 
     restart: unless-stopped
-    depends_on:
-      discovery-server:
-        condition: service_started
 
   cart-db:
     image: redis:7.2.1
@@ -77,8 +67,6 @@ services:
     command: mvn spring-boot:run -pl Cart
     restart: unless-stopped
     depends_on:
-      discovery-server:
-        condition: service_started
       cart-db:
         condition: service_healthy
 
@@ -113,8 +101,6 @@ services:
     command: mvn spring-boot:run -pl Identity
     restart: unless-stopped
     depends_on:
-      discovery-server:
-        condition: service_started
       identity-db:
         condition: service_healthy
 
@@ -148,8 +134,6 @@ services:
     command: mvn spring-boot:run -pl Order
     restart: unless-stopped
     depends_on:
-      discovery-server:
-        condition: service_started
       order-db:
         condition: service_healthy
       rabbitmq:
@@ -179,8 +163,6 @@ services:
     command: mvn spring-boot:run -pl Product
     restart: unless-stopped
     depends_on:
-      discovery-server:
-        condition: service_started
       product-db:
         condition: service_healthy
       rabbitmq:

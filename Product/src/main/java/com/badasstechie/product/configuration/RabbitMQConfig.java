@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    @Value("${message-bus.exchange-name}")
+    @Value("${event-bus.exchange-name}")
     private String exchangeName;
 
-    @Value("${message-bus.queues.update-stock}")
+    @Value("${event-bus.queues.update-stock}")
     private String queueName;
 
     @Bean

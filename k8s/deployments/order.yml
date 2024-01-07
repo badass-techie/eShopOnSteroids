@@ -24,9 +24,6 @@ spec:
                 name: env-vars
             - secretRef:
                 name: env-secrets
-          env:
-            - name: SERVER_PORT
-              value: "8083" # Override random port with one that is known so that we can expose it
           resources:
             limits:
               cpu: "1"  # limit the CPU usage to 1 cores

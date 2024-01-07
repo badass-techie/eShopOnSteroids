@@ -4,13 +4,13 @@
 
 [![Build](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml/badge.svg?branch=main)](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml) [![Issues](https://img.shields.io/github/issues/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/issues) [![Pull-Requests](https://img.shields.io/github/issues-pr/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/pulls) ![Stars](https://img.shields.io/github/stars/badass-techie/eShopOnSteroids) ![Forks](https://img.shields.io/github/forks/badass-techie/eShopOnSteroids)
 
-eShopOnSteroids is a well-architected, distributed, event-driven, cloud-first e-commerce platform powered by the following building blocks of microservices:
+eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e-commerce platform powered by the following building blocks of microservices:
 
 1. API Gateway (Spring Cloud Gateway)
-2. Service Discovery (HashiCorp Consul)
+2. Service Discovery (Docker Compose and Kubernetes builtin)
 3. Distributed Tracing (Sleuth, Zipkin)
 4. Circuit Breaker (Resilience4j)
-5. Message Bus (RabbitMQ)
+5. Event Bus (RabbitMQ)
 6. Database per Microservice (PostgreSQL, MongoDB, Redis)
 7. Centralized Monitoring (Prometheus, Grafana)
 8. Control Loop (Kubernetes, Terraform)
@@ -21,7 +21,7 @@ This code follows best practices such as:
 - Integration Testing (Testcontainers)
 - Design Patterns (Builder, Singleton, PubSub, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, hashicorp consul, hashicorp vault, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, prometheus, grafana, rabbitmq, terraform
+> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, observability, prometheus, promtail, loki, grafana, rabbitmq, terraform
 
 Note: If you are interested in this project, no better way to show it than ★ starring the repository!
 
@@ -34,7 +34,7 @@ Each microservice stores its data in its own database tailored to its requiremen
 Microservices communicate externally via REST through a secured API Gateway, and internally via
 
 - gRPC for synchronous communication which excels for its performance
-- a message bus for asynchronous communication in which the receiving microservice is free to handle the message whenever it has the capacity
+- an event bus for asynchronous communication in which the receiving microservice is free to handle the event whenever it has the capacity
 
 Below is a visual representation:
 
@@ -45,18 +45,16 @@ Below is a visual representation:
 - The Identity Microservice acts as an Identity Issuer and is responsible for storing users and their roles, and for issuing authorization credentials.
 - All microservices send regular heartbeats to the Discovery Server which helps them locate each other as they may have multiple instances running hence different IP addresses.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
-- The Product Microservice stores the product catalog and stock. It's subscribed to the Message Bus to receive notifications of new orders and update the stock accordingly.
-- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout, and publishes messages to the Message Bus to initiate a payment and to update the stock post-checkout.
+- The Product Microservice stores the product catalog and stock. It's subscribed to the Event Bus to receive notifications of new orders and update the stock accordingly.
+- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout, and publishes events to the Event Bus to initiate a payment and to update the stock post-checkout.
 - The gRPC communication between the microservices is fault-tolerant thanks to a circuit breaker.
-- The Payment Microservice handles payment processing. It's subscribed to the Message Bus to receive notifications of new orders and initiate a payment. It does not sit behind the API Gateway as it is not directly accessible by the user. It is also stateless and does not store any data.
+- The Payment Microservice handles payment processing. It's subscribed to the Event Bus to receive notifications of new orders and initiate a payment. It does not sit behind the API Gateway as it is not directly accessible by the user. It is also stateless and does not store any data.
 
-Admin services include:
+Observability services include:
 
-- Consul dashboard to monitor the availability and health of microservices
-![Consul Dashboard](./diagrams/consul.png)
-- Zipkin dashboard for tracing requests across microservices
+- Zipkin and Sleuth for assigning **traces** to requests to track their path across microservices
 ![Zipkin Dashboard](./diagrams/zipkin.png)
-- Grafana dashboard for visualizing the metrics of microservices and setting up alerts for when a metric exceeds a threshold
+- Prometheus and Grafana for collecting **metrics** from microservices and setting up alerts for when a metric exceeds a threshold
 ![Grafana Dashboard](./diagrams/grafana.png)
 
 ## Setup
@@ -187,7 +185,7 @@ You can now access the application at port 8080 locally
     kubectl apply -f ./deployments
     ```
 
-10. Expose the API gateway and admin services
+10. Expose the API gateway
 
     ```bash
     kubectl apply -f ./networking/node-port.yml
@@ -330,7 +328,7 @@ Let us now deploy our application to the cluster:
 
     The fourth column is the load balancer's address. Go to the AWS EC2 Console's Load Balancer feature and verify that the load balancer has been created. ![Elastic Load Balancer](./diagrams/aws-elb.png)
 
-You can now access the application at port 8080 with the hostname as the load balancer's address. You can also access the admin services with their respective ports.
+You can now access the application at port 8080 with the hostname as the load balancer's address. You can also access the observability services with their respective ports.
 
 To tear down the infrastructure, run the following commands:
 

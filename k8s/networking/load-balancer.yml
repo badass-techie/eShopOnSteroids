@@ -9,9 +9,6 @@ spec:
     - name: api-gateway
       port: 8080  # port used to access the service from outside the cluster
       targetPort: 8080  # port exposed by the deployment targeted by this service
-    - name: discovery-server
-      port: 8500
-      targetPort: 8500
     - name: zipkin
       port: 9411
       targetPort: 9411
