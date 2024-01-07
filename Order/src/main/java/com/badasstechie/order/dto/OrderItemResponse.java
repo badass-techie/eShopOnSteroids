@@ -2,7 +2,7 @@ package com.badasstechie.order.dto;
 
 import java.math.BigDecimal;
 
-public record OrderItemDto(
+public record OrderItemResponse(
         String productId,
         String productName,
         String productImageUrl,

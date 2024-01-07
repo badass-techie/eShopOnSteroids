@@ -5,9 +5,9 @@ import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
 import com.badasstechie.order.repository.OrderRepository;
+import com.badasstechie.product.grpc.ProductDetailsRequest;
+import com.badasstechie.product.grpc.ProductDetailsResponse;
 import com.badasstechie.product.grpc.ProductGrpcServiceGrpc;
-import com.badasstechie.product.grpc.ProductStocksRequest;
-import com.badasstechie.product.grpc.ProductStocksResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -47,7 +47,7 @@ public class OrderService {
                 order.getId(),
                 order.getUserId(),
                 order.getOrderNumber(),
-                order.getItems().stream().map(this::mapOrderItemToDto).toList(),
+                order.getItems().stream().map(this::mapOrderItemToResponse).toList(),
                 order.getItems().stream().reduce(
                         BigDecimal.ZERO,
                         (subtotal, orderItem) -> subtotal.add(orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()))),
@@ -59,17 +59,17 @@ public class OrderService {
         );
     }
 
-    private OrderItem mapDtoToOrderItem(OrderItemDto dto) {
+    private OrderItem mapRequestToOrderItem(OrderItemRequest request, String productName, BigDecimal unitPrice) {
         return OrderItem.builder()
-                .productId(dto.productId())
-                .productName(dto.productName())
-                .unitPrice(dto.unitPrice())
-                .quantity(dto.quantity())
+                .productId(request.productId())
+                .productName(productName)
+                .unitPrice(unitPrice)
+                .quantity(request.quantity())
                 .build();
     }
 
-    private OrderItemDto mapOrderItemToDto(OrderItem orderItem) {
-        return new OrderItemDto(
+    private OrderItemResponse mapOrderItemToResponse(OrderItem orderItem) {
+        return new OrderItemResponse(
                 orderItem.getProductId(),
                 orderItem.getProductName(),
                 "/api/v1/product/" + orderItem.getProductId() + "/image",
@@ -91,16 +91,18 @@ public class OrderService {
                 throw new RuntimeException(field + " not found but required for " + paymentMethod + " payment");
         }
 
-        List<ProductStockDto> stocks = getProductStocks(orderRequest.items().stream().map(OrderItemDto::productId).toList());
+        List<ProductDetailsGrpcResponse> products = getProductDetails(orderRequest.items().stream().map(OrderItemRequest::productId).toList());
 
-        // throw exception if length of stocks and order items are not equal
-        if (stocks.size() != orderRequest.items().size())
-            throw new RuntimeException("Product stocks not found");
+        // throw exception if length of products and order items are not equal
+        if (products.size() != orderRequest.items().size())
+            throw new RuntimeException("Some products not found in catalog");
 
         // throw exception if stock of any product is not enough
+        List<OrderItem> orderItems = new ArrayList<>();
         for(int i = 0; i < orderRequest.items().size(); ++i) {
-            if (stocks.get(i).quantity() < orderRequest.items().get(i).quantity())
+            if (products.get(i).quantity() < orderRequest.items().get(i).quantity())
                 throw new RuntimeException("Product " + orderRequest.items().get(i).productId() + " stock is not enough");
+            orderItems.add(mapRequestToOrderItem(orderRequest.items().get(i), products.get(i).name(), products.get(i).price()));
         }
 
         // place order
@@ -108,14 +110,14 @@ public class OrderService {
                 Order.builder()
                         .userId(userId)
                         .orderNumber(UUID.randomUUID().toString())
-                        .items(orderRequest.items().stream().map(this::mapDtoToOrderItem).toList())
+                        .items(orderItems)
                         .status(OrderStatus.AWAITING_PAYMENT)
                         .deliveryAddress(orderRequest.deliveryAddress())
                         .created(Instant.now())
                         .build()
         );
 
-        // publish message to message bus for payment to be processed
+        // publish event to event bus for payment to be processed
         OrderPaymentRequest paymentRequest = new OrderPaymentRequest(
                 order.getId(),
                 order.getOrderNumber(),
@@ -130,7 +132,7 @@ public class OrderService {
         );
         orderAwaitingPaymentTemplate.convertAndSend(paymentRequest);
 
-        // publish message to message bus for stock to be updated
+        // publish event to event bus for stock to be updated
         List<ProductStockDto> productsOrdered = order.getItems().stream()
                 .map(item -> new ProductStockDto(item.getProductId(), item.getQuantity()))
                 .toList();
@@ -140,13 +142,13 @@ public class OrderService {
     }
 
     @CircuitBreaker(name = "product-grpc-service")
-    public List<ProductStockDto> getProductStocks(List<String> ids) {
+    public List<ProductDetailsGrpcResponse> getProductDetails(List<String> ids) {
         // call grpc service to get product stocks
-        ProductStocksResponse response = productGrpcService.getProductStocks(
-                ProductStocksRequest.newBuilder().addAllIds(ids).build());
+        ProductDetailsResponse response = productGrpcService.getProductDetails(
+                ProductDetailsRequest.newBuilder().addAllIds(ids).build());
 
-        return response.getStocksList().stream()
-                .map(stock -> new ProductStockDto(stock.getId(), stock.getQuantity()))
+        return response.getProductDetailsList().stream()
+                .map(product -> new ProductDetailsGrpcResponse(product.getId(), product.getName(), new BigDecimal(product.getPrice()), product.getStock()))
                 .toList();
     }
 

@@ -3,18 +3,20 @@ option java_multiple_files = true;  // generate a separate .java file for each t
 package com.badasstechie.product.grpc;  // package name used for generated sources
 
 service ProductGrpcService {
-  rpc getProductStocks (ProductStocksRequest) returns (ProductStocksResponse) {}
+  rpc getProductDetails (ProductDetailsRequest) returns (ProductDetailsResponse) {}
 }
 
-message ProductStocksRequest {
+message ProductDetailsRequest {
   repeated string ids = 1;
 }
 
-message ProductStocksResponse {
-  repeated ProductStock stocks = 1;
+message ProductDetailsResponse {
+  repeated ProductDetails productDetails = 1;
 }
 
-message ProductStock {
+message ProductDetails {
   string id = 1;
-  int32 quantity = 2;
+  string name = 2;
+  uint32 price = 3;
+  int32 stock = 4;
 }

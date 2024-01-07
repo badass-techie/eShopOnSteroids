@@ -7,7 +7,7 @@ public record OrderResponse(
         Long id,
         Long userId,
         String orderNumber,
-        List<OrderItemDto> items,
+        List<OrderItemResponse> items,
         BigDecimal totalCost,
         String deliveryAddress,
         String status,

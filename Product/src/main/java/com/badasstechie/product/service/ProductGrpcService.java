@@ -1,9 +1,9 @@
 package com.badasstechie.product.service;
 
 import com.badasstechie.product.grpc.ProductGrpcServiceGrpc;
-import com.badasstechie.product.grpc.ProductStock;
-import com.badasstechie.product.grpc.ProductStocksRequest;
-import com.badasstechie.product.grpc.ProductStocksResponse;
+import com.badasstechie.product.grpc.ProductDetails;
+import com.badasstechie.product.grpc.ProductDetailsRequest;
+import com.badasstechie.product.grpc.ProductDetailsResponse;
 import com.badasstechie.product.model.Product;
 import com.badasstechie.product.repository.ProductRepository;
 import io.grpc.stub.StreamObserver;
@@ -19,13 +19,21 @@ public class ProductGrpcService extends ProductGrpcServiceGrpc.ProductGrpcServic
     private final ProductRepository productRepository;
 
     @Override
-    public void getProductStocks(ProductStocksRequest request, StreamObserver<ProductStocksResponse> responseObserver) {
+    public void getProductDetails(ProductDetailsRequest request, StreamObserver<ProductDetailsResponse> responseObserver) {
         List<Product> products = (List<Product>) productRepository.findAllById(request.getIdsList());
 
-        ProductStocksResponse response = products.stream()
-                .map(product -> ProductStock.newBuilder().setId(product.getId()).setQuantity(product.getStock()).build())
+        ProductDetailsResponse response = products.stream()
+                .map(product ->
+                        ProductDetails
+                                .newBuilder()
+                                .setId(product.getId())
+                                .setName(product.getName())
+                                .setPrice(product.getPrice().intValue())
+                                .setStock(product.getStock())
+                                .build()
+                )
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
-                        collected -> ProductStocksResponse.newBuilder().addAllStocks(collected).build()));
+                        collected -> ProductDetailsResponse.newBuilder().addAllProductDetails(collected).build()));
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();

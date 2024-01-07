@@ -1,9 +1,6 @@
 package com.badasstechie.order.service;
 
-import com.badasstechie.order.dto.OrderItemDto;
-import com.badasstechie.order.dto.OrderRequest;
-import com.badasstechie.order.dto.OrderResponse;
-import com.badasstechie.order.dto.ProductStockDto;
+import com.badasstechie.order.dto.*;
 import com.badasstechie.order.model.Order;
 import com.badasstechie.order.model.OrderItem;
 import com.badasstechie.order.model.OrderStatus;
@@ -42,7 +39,7 @@ public class OrderServiceTest {
 
     private Order order;
     private OrderRequest orderRequest;
-    private List<ProductStockDto> availableStock;
+    private List<ProductDetailsGrpcResponse> productDetails;
     
     @BeforeEach
     void setUp() {
@@ -50,14 +47,14 @@ public class OrderServiceTest {
 
         OrderItem orderItem = new OrderItem(1L, "1", "Product 1", BigDecimal.valueOf(10), 1);
         order = new Order(1L, 1L, "Order 1", List.of(orderItem), OrderStatus.AWAITING_PAYMENT, "Address 1", Instant.now());
-        OrderItemDto orderItemDto = new OrderItemDto(orderItem.getProductId(), orderItem.getProductName(), "", orderItem.getUnitPrice(), orderItem.getQuantity());
-        orderRequest = new OrderRequest(List.of(orderItemDto), "Address 1", "mpesa", Map.of("phoneNumber", "254700000000"));
-        availableStock = List.of(new ProductStockDto(orderItem.getProductId(), orderItem.getQuantity()));
+        OrderItemRequest orderItemRequest = new OrderItemRequest(orderItem.getProductId(), orderItem.getQuantity());
+        orderRequest = new OrderRequest(List.of(orderItemRequest), "Address 1", "mpesa", Map.of("phoneNumber", "254700000000"));
+        productDetails = List.of(new ProductDetailsGrpcResponse(orderItem.getProductId(), orderItem.getProductName(), orderItem.getUnitPrice(), orderItem.getQuantity()));
     }
 
     @Test
     void testPlaceOrder() {
-        doAnswer(invocation -> availableStock).when(orderServiceSpy).getProductStocks(any());
+        doAnswer(invocation -> productDetails).when(orderServiceSpy).getProductDetails(any());
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         ResponseEntity<OrderResponse> response = orderServiceSpy.placeOrder(orderRequest, 1L);
@@ -65,6 +62,6 @@ public class OrderServiceTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(order.getId(), response.getBody().id());
         verify(orderRepository, times(1)).save(any(Order.class));
-        verify(rabbitTemplate, times(1)).convertAndSend(any(), any(), anyList());
+        verify(rabbitTemplate, times(2)).convertAndSend(any());
     }
 }

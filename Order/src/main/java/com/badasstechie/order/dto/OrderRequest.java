@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record OrderRequest(
-    List<OrderItemDto> items,
+    List<OrderItemRequest> items,
     String deliveryAddress,
     String paymentMethod,
     Map<String, String> payerDetails
