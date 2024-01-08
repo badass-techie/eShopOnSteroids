@@ -21,6 +21,8 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     ports:
       - "15672:15672"
+    environment:
+      - RABBITMQ_LOGS=warning # suppress log spamming
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 1s
@@ -146,6 +148,7 @@ services:
     restart: unless-stopped
     volumes:
       - product-db:/data/db
+    command: ["mongod", "--logpath", "/var/log/mongodb/mongod.log", "--logappend", "--quiet"] # suppress log spamming
     healthcheck:
       test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
       interval: 1s
@@ -186,13 +189,26 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8081:8080"
+
   prometheus:
     image: prom/prometheus:v2.47.2
     restart: unless-stopped
     volumes:
-      - ./prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    depends_on:
+      cadvisor:
+        condition: service_started
 
   grafana:
     image: grafana/grafana:10.1.5
@@ -202,7 +218,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_LOG_LEVEL=warn
+      - GF_LOG_LEVEL=warn # suppress log spamming
     depends_on:
       - prometheus
 

@@ -7,13 +7,14 @@
 eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e-commerce platform powered by the following building blocks of microservices:
 
 1. API Gateway (Spring Cloud Gateway)
-2. Service Discovery (Docker Compose and Kubernetes builtin)
+2. Service Discovery (Docker and Kubernetes builtin)
 3. Distributed Tracing (Sleuth, Zipkin)
 4. Circuit Breaker (Resilience4j)
 5. Event Bus (RabbitMQ)
 6. Database per Microservice (PostgreSQL, MongoDB, Redis)
 7. Centralized Monitoring (Prometheus, Grafana)
-8. Control Loop (Kubernetes, Terraform)
+8. Centralized Logging (Promtail, Loki, Grafana)
+9. Control Loop (Kubernetes, Terraform)
 
 This code follows best practices such as:
 
