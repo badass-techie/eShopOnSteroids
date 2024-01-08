@@ -29,7 +29,8 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: cart-db
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: cart-db-pvc
 
 ---
 

@@ -66,6 +66,7 @@ services:
       - POSTGRES_USER=$IDENTITY_DB_USERNAME
       - POSTGRES_PASSWORD=$IDENTITY_DB_PASSWORD
       - POSTGRES_DB=identity
+      - PGDATA=/var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 1s
@@ -96,6 +97,7 @@ services:
       - POSTGRES_USER=$ORDER_DB_USERNAME
       - POSTGRES_PASSWORD=$ORDER_DB_PASSWORD
       - POSTGRES_DB=order
+      - PGDATA=/var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 1s

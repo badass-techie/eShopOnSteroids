@@ -29,7 +29,8 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: product-db
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: product-db-pvc
 
 ---
 

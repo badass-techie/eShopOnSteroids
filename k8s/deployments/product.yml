@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: product # name of the deployment
   namespace: eshoponsteroids
 spec:
-  serviceName: product
   selector:
     matchLabels:
       app: product  # tell this deployment to target the pods with the label app: product
@@ -27,9 +26,9 @@ spec:
                 name: env-vars
           resources:
             limits:
-              cpu: "750m"  # limit the CPU usage to 0.75 cores
+              cpu: "1.5"  # limit the CPU cores to 1.5
             requests:
-              cpu: "300m"  # request at least 0.3 CPU cores
+              cpu: "600m"  # request at least 0.6 CPU cores
 
 ---
 
@@ -72,4 +71,4 @@ spec:
         name: cpu 
         target: 
           type : Utilization 
-          averageUtilization: 70  # scale to achieve an average CPU utilization of 70%
+          averageUtilization: 75  # scale to achieve an average CPU utilization of 75%

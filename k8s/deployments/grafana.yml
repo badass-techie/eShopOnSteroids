@@ -14,6 +14,10 @@ spec:
         app: grafana
         network: public
     spec:
+      securityContext:
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
       containers:
         - name: grafana
           image: grafana/grafana:10.1.5
@@ -27,4 +31,5 @@ spec:
                 name: env-vars
       volumes:
         - name: grafana-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: grafana-pvc

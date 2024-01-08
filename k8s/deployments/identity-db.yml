@@ -34,6 +34,8 @@ spec:
                   key: IDENTITY_DB_PASSWORD
             - name: POSTGRES_DB
               value: identity
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           readinessProbe: # check if the container is ready to accept traffic
             exec:
               command: ["pg_isready", "-U", "postgres"]
@@ -42,7 +44,8 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: identity-db
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: identity-db-pvc
 
 ---
 

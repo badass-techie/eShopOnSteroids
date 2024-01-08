@@ -173,19 +173,25 @@ You can now access the application at port 8080 locally
     kubectl apply -f ./config
     ```
 
-8. Install kubernetes metrics server (needed to scale microservices based on metrics)
+8. Apply the persistent volumes
+
+    ```bash
+    kubectl apply -f ./volumes
+    ```
+
+9. Install kubernetes metrics server (needed to scale microservices based on metrics)
 
     ```bash
     kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
     ```
 
-9. Deploy the containers
+10. Deploy the containers
 
     ```bash
     kubectl apply -f ./deployments
     ```
 
-10. Expose the API gateway
+11. Expose the API gateway
 
     ```bash
     kubectl apply -f ./networking/node-port.yml
@@ -281,7 +287,7 @@ Then:
     terraform apply tfplan
     ```
 
-    This step will take approximately 15 minutes. You can monitor the progress in the AWS Console.
+    This step will take approximately 15 minutes.
 
 5. Configure kubectl to connect to the cluster
 
@@ -310,9 +316,9 @@ Let us now deploy our application to the cluster:
     cd ..
     ```
 
-2. Execute steps 2 to 9 of [Deploy to local Kubernetes cluster](#deploy-to-local-kubernetes-cluster).
+2. Execute steps 2 to 10 of [Deploy to local Kubernetes cluster](#deploy-to-local-kubernetes-cluster).
 
-3. Run `kubectl get deployments --watch` and `kubectl get statefulsets --watch` to monitor the progress.
+3. Run `kubectl get deployments --watch` to monitor the progress.
 
 4. Request a load balancer from AWS to expose the application's API gateway outside the cluster once deployments are ready
 
@@ -320,13 +326,13 @@ Let us now deploy our application to the cluster:
     kubectl apply -f ./networking/load-balancer.yml
     ```
 
-    Run `kubectl get svc | grep LoadBalancer` to get the load balancer's address. It should be similar to:
+    Run `kubectl describe service load-balancer | grep Ingress` to get the load balancer's address. It should be similar to:
 
     ```bash
-    load-balancer      LoadBalancer   172.20.131.96    a890f7fb3c6da8536b7dbdbdf3281d23-94553621.us-east-1.elb.amazonaws.com   8080:31853/TCP,8500:32310/TCP,9411:30272/TCP,9090:32144/TCP,3000:31492/TCP   60s
+    LoadBalancer Ingress:     a9611669cf885464a8fac52687bbbba6-690733611.us-east-1.elb.amazonaws.com
     ```
 
-    The fourth column is the load balancer's address. Go to the AWS EC2 Console's Load Balancer feature and verify that the load balancer has been created. ![Elastic Load Balancer](./diagrams/aws-elb.png)
+    Go to the AWS EC2 Console's Load Balancer feature and verify that the load balancer has been created. ![Elastic Load Balancer](./diagrams/aws-elb.png)
 
 You can now access the application at port 8080 with the hostname as the load balancer's address. You can also access the observability services with their respective ports.
 
@@ -347,8 +353,7 @@ kubectl config use-context [name-of-local-cluster]
 
 Future work:
 
-- Add AWS EKS CSI driver to terraform which will allow provisioning of AWS EBS volumes for Kubernetes PVCs
-- Use an Ingress Controller (e.g. Nginx) instead of a Load Balancer to expose the API Gateway outside the cluster
+- Use an Ingress Controller (e.g. Nginx) to expose the API Gateway outside the cluster, or as the API Gateway itself.
 
 ## Usage
 

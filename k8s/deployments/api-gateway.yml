@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: api-gateway # name of the deployment
   namespace: eshoponsteroids
 spec:
-  serviceName: api-gateway
   replicas: 1 # have only one instance of the pod
   selector:
     matchLabels:

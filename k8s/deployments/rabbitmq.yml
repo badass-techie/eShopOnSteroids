@@ -31,7 +31,8 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: rabbitmq-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
 
 ---
 

@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: cart # name of the deployment
   namespace: eshoponsteroids
 spec:
-  serviceName: cart
   selector:
     matchLabels:
       app: cart # tell this deployment to target the pods with the label app: cart
@@ -24,9 +23,9 @@ spec:
                 name: env-vars
           resources:
             limits:
-              cpu: "500m"  # limit the CPU usage to 0.5 cores
+              cpu: "1"  # limit the CPU cores to 1
             requests:
-              cpu: "200m"  # request at least 0.2 CPU cores
+              cpu: "400m"  # request at least 0.4 CPU cores
 
 ---
 
@@ -65,4 +64,4 @@ spec:
         name: cpu 
         target: 
           type : Utilization 
-          averageUtilization: 70  # scale to achieve an average CPU utilization of 70%
+          averageUtilization: 75  # scale to achieve an average CPU utilization of 75%
