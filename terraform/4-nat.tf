@@ -1,6 +1,6 @@
 # elastic ip for nat gateway
 resource "aws_eip" "eshoponsteroids-nat" {
-  vpc = true
+  
 }
 
 # nat gateway allows our private subnets to connect to the internet
