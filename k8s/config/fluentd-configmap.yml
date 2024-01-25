@@ -21,6 +21,7 @@ data:
       host elasticsearch.eshoponsteroids.svc.cluster.local
       port 9200
       logstash_format true
+      logstash_prefix fluentd
       <buffer>
         @type file
         path /var/log/fluentd-buffers/kubernetes.system.buffer
