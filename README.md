@@ -13,7 +13,7 @@ eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e
 5. Event Bus (RabbitMQ)
 6. Database per Microservice (PostgreSQL, MongoDB, Redis)
 7. Centralized Monitoring (Prometheus, Grafana)
-8. Centralized Logging (Promtail, Loki, Grafana)
+8. Centralized Logging (Elasticsearch, Fluentd, Kibana)
 9. Control Loop (Kubernetes, Terraform)
 
 This code follows best practices such as:
@@ -22,7 +22,7 @@ This code follows best practices such as:
 - Integration Testing (Testcontainers)
 - Design Patterns (Builder, Singleton, PubSub, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, kubernetes, k8s, observability, prometheus, promtail, loki, grafana, rabbitmq, terraform
+> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, rabbitmq, kubernetes, k8s, terraform, observability, prometheus, grafana, elasticsearch, fluentd, kibana
 
 Note: If you are interested in this project, no better way to show it than ★ starring the repository!
 
@@ -57,6 +57,8 @@ Observability services include:
 ![Zipkin Dashboard](./diagrams/zipkin.png)
 - Prometheus and Grafana for collecting **metrics** from microservices and setting up alerts for when a metric exceeds a threshold
 ![Grafana Dashboard](./diagrams/grafana.png)
+- Elasticsearch, Fluentd and Kibana for aggregating **logs** from microservices 
+![Kibana Dashboard](./diagrams/kibana.png)
 
 ## Setup
 
@@ -319,7 +321,7 @@ Let us now deploy our application to the cluster:
 
 2. Execute steps 2 to 10 of [Deploy to local Kubernetes cluster](#deploy-to-local-kubernetes-cluster).
 
-3. Run `kubectl get deployments --watch` to monitor the progress.
+3. Run `kubectl get deployments --watch` and `kubectl get statefulsets --watch` to monitor the progress.
 
 4. Request a load balancer from AWS to expose the application's API gateway outside the cluster once deployments are ready
 

@@ -3,7 +3,7 @@ global:
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
 
 scrape_configs:
-  - job_name: 'cadvisor'
+  - job_name: 'spring'
+    metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets:
-        - cadvisor:8080
+      - targets: ['api-gateway:8080', 'identity:8082', 'cart:8081', 'order:8083', 'product:8084']

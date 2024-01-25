@@ -7,7 +7,6 @@ data:
   CART_DB_URL: "redis://cart-db:6379"
   CART_MICROSERVICE_URL: "http://cart:8081"
   GF_LOG_LEVEL: "warn"
-  DISCOVERY_SERVER_HOST: "discovery-server"
   IDENTITY_DB_URL: "jdbc:postgresql://identity-db:5432/identity"
   IDENTITY_MICROSERVICE_URL: "http://identity:8082"
   ORDER_DB_URL: "jdbc:postgresql://order-db:5432/order"
