@@ -32,6 +32,12 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: api-gateway
 
   cart-db:
     image: redis:7.2.1
@@ -56,6 +62,12 @@ services:
     depends_on:
       cart-db:
         condition: service_healthy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: cart
 
   identity-db:
     image: postgres:16.0
@@ -87,6 +99,12 @@ services:
     depends_on:
       identity-db:
         condition: service_healthy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: identity
 
   order-db:
     image: postgres:16.0
@@ -120,6 +138,12 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: order
 
   product-db:
     image: mongo:5.0-focal
@@ -147,6 +171,12 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: product
 
   payment:
     build:
@@ -160,6 +190,12 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: payment
 
   prometheus:
     image: prom/prometheus:v2.47.2
@@ -181,6 +217,41 @@ services:
     depends_on:
       - prometheus
 
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  fluentd:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.17.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    volumes:
+      - elasticsearch-data:/usr/share/kibana/data
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+
 
 volumes:
   rabbitmq-data:
@@ -189,3 +260,4 @@ volumes:
   order-db:
   product-db:
   grafana-data:
+  elasticsearch-data:

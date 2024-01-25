@@ -103,3 +103,15 @@ RUN pip install -r requirements.txt
 
 # Run the python file
 ENTRYPOINT ["python", "app.py"]
+
+
+# Fluentd
+FROM fluent/fluentd:v1.12.0-debian-1.0 AS fluentd
+
+USER root
+
+RUN gem uninstall -I elasticsearch && gem install elasticsearch -v 7.13.3
+
+RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--version", "5.0.3"]
+
+USER fluent
