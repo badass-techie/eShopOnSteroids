@@ -21,6 +21,9 @@ spec:
     - name: grafana
       port: 3000
       targetPort: 3000
+    - name: kibana
+      port: 5601
+      targetPort: 5601
   selector:
     network: public   # tell this service to target all pods with the label network: public
     

@@ -26,6 +26,10 @@ spec:
       port: 3000
       targetPort: 3000
       nodePort: 30084
+    - name: kibana
+      port: 5601
+      targetPort: 5601
+      nodePort: 30085
   selector:
     network: public   # tell this service to target the pods with the label network: public
     
