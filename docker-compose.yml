@@ -229,7 +229,7 @@ services:
   fluentd:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc
