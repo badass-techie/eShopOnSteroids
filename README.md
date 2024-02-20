@@ -28,7 +28,7 @@ Note: If you are interested in this project, no better way to show it than ★ s
 
 ## Architecture
 
-The architecture proposes a microservices oriented implementation where each microservice is responsible for a single business capability. The microservices are deployed in a containerized environment (Docker) and orchestrated by a control loop (Kubernetes) which continuously compares the state of each microservice to the desired state, and takes necessary actions to arrive at the desired state.
+The architecture proposes a microservices-oriented implementation where each microservice is responsible for a single business capability. The microservices are deployed in a containerized environment (Docker) and orchestrated by a control loop (Kubernetes) which continuously compares the state of each microservice to the desired state, and takes necessary actions to arrive at the desired state.
 
 Each microservice stores its data in its own database tailored to its requirements, such as an In-Memory Database for a shopping cart whose persistence is short-lived, a Document Database for a product catalog for its flexibility, or a Relational Database for an order management system for its ACID properties.
 
@@ -42,14 +42,13 @@ Below is a visual representation:
 ![Architecture](./diagrams/architecture.png)
 
 - All microservices are inside a private network and not accessible except through the API Gateway.
-- The API Gateway routes requests to the appropriate microservice, and validates the authorization of requests to all microservices except the Identity Microservice.
+- The API Gateway routes requests to the appropriate microservice and also validates the authorization of requests.
 - The Identity Microservice acts as an Identity Issuer and is responsible for storing users and their roles, and for issuing authorization credentials.
-- All microservices send regular heartbeats to the Discovery Server which helps them locate each other as they may have multiple instances running hence different IP addresses.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Event Bus to receive notifications of new orders and update the stock accordingly.
-- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout, and publishes events to the Event Bus to initiate a payment and to update the stock post-checkout.
+- The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout and publishes events to the Event Bus to initiate a payment and to update the stock post-checkout.
 - The gRPC communication between the microservices is fault-tolerant thanks to a circuit breaker.
-- The Payment Microservice handles payment processing. It's subscribed to the Event Bus to receive notifications of new orders and initiate a payment. It does not sit behind the API Gateway as it is not directly accessible by the user. It is also stateless and does not store any data.
+- The Payment Microservice handles payment processing. It's subscribed to the Event Bus to receive notifications of new orders and initiate a payment. It does not lie behind the API Gateway as it is not directly accessible by the user. It is also stateless and does not store any data.
 
 Observability services include:
 
@@ -57,7 +56,7 @@ Observability services include:
 ![Zipkin Dashboard](./diagrams/zipkin.png)
 - Prometheus and Grafana for collecting **metrics** from microservices and setting up alerts for when a metric exceeds a threshold
 ![Grafana Dashboard](./diagrams/grafana.png)
-- Elasticsearch, Fluentd and Kibana for aggregating **logs** from microservices 
+- Elasticsearch, Fluentd, and Kibana for aggregating **logs** from microservices 
 ![Kibana Dashboard](./diagrams/kibana.png)
 
 ## Setup
@@ -215,7 +214,7 @@ Future work:
 
 #### Deploy to AWS EKS cluster
 
-Typically, DevOps engineers provision cloud resources, and developers only focus on deploying code to these resources. However, as a developer, to be able to design cloud-native applications such as this one, it's important to understand the basics of the infrastructure on which your code runs. That is why we will provision our own Kubernetes cluster on AWS EKS (Elastic Kubernetes Service) for our application.
+Typically, cloud engineers provision cloud resources, and developers focus more on shipping their code to these resources. However, as a developer, to be able to design cloud-native applications such as this one, it's important to understand the infrastructure on which your code runs (hence the rise of DevOps as a software development methodology). That is why we will provision our own Kubernetes cluster on AWS EKS (Elastic Kubernetes Service) for our application.
 
 For this section, in addition to Docker you will need:
 
