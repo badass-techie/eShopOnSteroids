@@ -43,7 +43,7 @@ Below is a visual representation:
 
 - All microservices are inside a private network and not accessible except through the API Gateway.
 - The API Gateway routes requests to the appropriate microservice and also validates the authorization of requests.
-- The Identity Microservice acts as an Identity Issuer and is responsible for storing users and their roles, and for issuing authorization credentials.
+- The Identity Microservice acts as an Identity Provider and is responsible for storing users and their roles, and for issuing authorization credentials.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Event Bus to receive notifications of new orders and update the stock accordingly.
 - The Order Microservice manages order processing and fulfillment. It performs a gRPC call to the Product Microservice to check the availability and pricing of the products in the order pre-checkout and publishes events to the Event Bus to initiate a payment and to update the stock post-checkout.
