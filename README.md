@@ -20,7 +20,7 @@ This code follows best practices such as:
 
 - Unit Testing (JUnit 5, Mockito, Pytest)
 - Integration Testing (Testcontainers)
-- Design Patterns (Builder, Singleton, PubSub, ...)
+- Design Patterns (Publish/Subscribe, Backend for Frontend, ...)
 
 > microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, rabbitmq, kubernetes, k8s, terraform, observability, prometheus, grafana, elasticsearch, fluentd, kibana
 
@@ -42,7 +42,7 @@ Below is a visual representation:
 ![Architecture](./diagrams/architecture.png)
 
 - All microservices are inside a private network and not accessible except through the API Gateway.
-- The API Gateway routes requests to the appropriate microservice and also validates the authorization of requests.
+- The API Gateway routes requests to the corresponding microservice, routes requests to the appropriate endpoint based on the client (Backend for Frontend), and validates the authorization of requests.
 - The Identity Microservice acts as an Identity Provider and is responsible for storing users and their roles, and for issuing authorization credentials.
 - The Cart Microservice manages the shopping cart of each user. It uses a cache (Redis) as the storage.
 - The Product Microservice stores the product catalog and stock. It's subscribed to the Event Bus to receive notifications of new orders and update the stock accordingly.
@@ -58,6 +58,10 @@ Observability services include:
 ![Grafana Dashboard](./diagrams/grafana.png)
 - Elasticsearch, Fluentd, and Kibana for aggregating **logs** from microservices 
 ![Kibana Dashboard](./diagrams/kibana.png)
+
+Future work:
+
+- Outsource authentication to a third-party identity provider such as Keycloak
 
 ## Setup
 
