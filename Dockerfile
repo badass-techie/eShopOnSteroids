@@ -110,6 +110,7 @@ FROM fluent/fluentd:v1.12.0-debian-1.0 AS fluentd
 
 USER root
 
+RUN gem install excon -v 0.109.0
 RUN gem uninstall -I elasticsearch && gem install elasticsearch -v 7.13.3
 
 RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--version", "5.0.3"]
