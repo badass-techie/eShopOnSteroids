@@ -218,7 +218,7 @@ Future work:
 
 #### Deploy to AWS EKS cluster
 
-Typically, cloud engineers provision cloud resources, and developers focus more on shipping their code to these resources. However, as a developer, to be able to design cloud-native applications such as this one, it's important to understand the infrastructure on which your code runs (hence the rise of DevOps as a software development methodology). That is why we will provision our own Kubernetes cluster on AWS EKS (Elastic Kubernetes Service) for our application.
+Typically, operations teams provision cloud resources, and dev teams focus more on shipping their code to these resources. However, as a developer, to be able to design cloud-native applications such as this one, it is important to understand the infrastructure on which your code runs (hence the rise of DevOps as a software development methodology). That is why we will provision our own Kubernetes cluster on AWS EKS (Elastic Kubernetes Service) for our application.
 
 For this section, in addition to Docker you will need:
 
@@ -226,16 +226,17 @@ For this section, in addition to Docker you will need:
 - An AWS account
 - AWS CLI configured with the credentials of either your account or an IAM user with administrator access (run `aws configure`)
 
-Here is a breakdown of the resources we will provision:
+Here is a breakdown of the resources to set up and configure:
 
-- VPC (Virtual Private Cloud): a virtual network where our cluster will reside
-- Subnets: 2 public and 2 private subnets in different availability zones (required by EKS to ensure high availability of the cluster)
-- Internet Gateway: allows external access to our VPC
-- NAT Gateway: allows our private subnets to access the internet
-- Security Groups: for controlling inbound and outbound traffic to our cluster
+- VPC (Virtual Private Cloud): a virtual network that represents a logically isolated section of the AWS cloud where our cluster will reside
+- Subnets: 2 public and 2 private subnets in different availability zones (required by EKS to ensure high availability of the cluster). Think of subnets as segments of our VPC that allow us to group resources based on their security and connectivity requirements
+- Internet Gateway: a VPC component that allows our public subnets to access the internet
+- NAT Gateway: a VPC component that allows our private subnets to access the internet but prevents the internet from initiating connections to our private subnets
+- Route Tables: contains a set of rules called routes that direct traffic and in this case connect the internet gateway to the public subnets and the NAT gateway to the private subnets
+- Security Groups: they act as virtual firewalls to control inbound and outbound traffic to our resources
 - IAM Roles: for granting permissions to our cluster to access other AWS services and perform actions on our behalf
-- EKS Cluster: the Kubernetes cluster itself
-- EKS Node Group: the worker nodes that will run our containers
+- EKS Cluster: an out of the box k8s cluster with the control plane managed by AWS
+- EKS Node Group: a group of EC2 instances managed by the EKS cluster to run our containers
 
 To provision the cluster, we will use Terraform as opposed to AWS Console or eksctl. [What is Terraform and how does it simplify infrastructure management?](https://www.ibm.com/topics/terraform) All the above resources are already defined as terraform manifests and what is left to do is to apply them to our AWS account.
 
