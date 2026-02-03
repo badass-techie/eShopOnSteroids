@@ -4,12 +4,12 @@
 
 [![Build](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml/badge.svg?branch=main)](https://github.com/badass-techie/eShopOnSteroids/actions/workflows/build-and-push-docker-images.yml) [![Issues](https://img.shields.io/github/issues/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/issues) [![Pull-Requests](https://img.shields.io/github/issues-pr/badass-techie/eShopOnSteroids)](https://github.com/badass-techie/eShopOnSteroids/pulls) ![Stars](https://img.shields.io/github/stars/badass-techie/eShopOnSteroids) ![Forks](https://img.shields.io/github/forks/badass-techie/eShopOnSteroids)
 
-eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e-commerce platform powered by the following building blocks of microservices:
+eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e-commerce platform built with **.NET 8** and powered by the following building blocks of microservices:
 
-1. API Gateway (Spring Cloud Gateway)
+1. API Gateway (Yarp Reverse Proxy)
 2. Service Discovery (Docker and Kubernetes builtin)
-3. Distributed Tracing (Sleuth, Zipkin)
-4. Circuit Breaker (Resilience4j)
+3. Distributed Tracing (OpenTelemetry, Zipkin)
+4. Circuit Breaker (Polly)
 5. Event Bus (RabbitMQ)
 6. Database per Microservice (PostgreSQL, MongoDB, Redis)
 7. Centralized Monitoring (Prometheus, Grafana)
@@ -18,11 +18,11 @@ eShopOnSteroids is a well-architected, distributed, event-driven, cloud-native e
 
 This code follows best practices such as:
 
-- Unit Testing (JUnit 5, Mockito, Pytest)
+- Unit Testing (xUnit, NUnit, Pytest)
 - Integration Testing (Testcontainers)
 - Design Patterns (Publish/Subscribe, Backend for Frontend, ...)
 
-> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, java, python, spring cloud, spring boot, spring cloud gateway, spring cloud sleuth, zipkin, resilience4j, postgresql, mongodb, redis, cache, rabbitmq, kubernetes, k8s, terraform, observability, prometheus, grafana, elasticsearch, fluentd, kibana
+> microservices, event-driven, distributed systems, e-commerce, domain-driven-design, dotnet, csharp, python, yarp, opentelemetry, zipkin, polly, postgresql, mongodb, redis, cache, rabbitmq, kubernetes, k8s, terraform, observability, prometheus, grafana, elasticsearch, fluentd, kibana
 
 Note: If you are interested in this project, no better way to show it than ★ starring the repository!
 

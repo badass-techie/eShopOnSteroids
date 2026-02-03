@@ -1,0 +1,7 @@
+# Global.json for .NET SDK version
+{
+  "sdk": {
+    "version": "8.0.0",
+    "rollForward": "latestMinor"
+  }
+}

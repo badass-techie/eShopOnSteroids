@@ -1,118 +1,82 @@
-# Use maven as base image
-FROM maven:3.8.3-openjdk-17
+# Build stage for .NET services
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-# Copy the entire maven project
-COPY . /build/
+# Generate RSA keys for JWT
+RUN apt-get update && apt-get install -y openssl && \
+    openssl genrsa -out /keypair.pem 2048 && \
+    openssl rsa -in /keypair.pem -pubout -out /public.pem && \
+    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in /keypair.pem -out /private.pem
 
-# Set working directory
-WORKDIR /build
+# Copy solution and project files
+COPY ["eShopOnSteroids.sln", "./"]
+COPY ["Identity/Identity.csproj", "Identity/"]
+COPY ["Cart/Cart.csproj", "Cart/"]
+COPY ["Order/Order.csproj", "Order/"]
+COPY ["Product/Product.csproj", "Product/"]
+COPY ["ApiGateway/ApiGateway.csproj", "ApiGateway/"]
 
-# Generate the rsa keys
-RUN microdnf install -y openssl
-RUN openssl genrsa -out keypair.pem 2048
-RUN openssl rsa -in keypair.pem -pubout -out public.pem
-RUN openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem
+# Restore dependencies
+RUN dotnet restore "eShopOnSteroids.sln"
 
-# Copy the private key and public key to identity microservice to sign JWT
-RUN mkdir -p /build/Identity/src/main/resources/certs
-RUN cp private.pem /build/Identity/src/main/resources/certs/private.pem
-RUN cp public.pem /build/Identity/src/main/resources/certs/public.pem
+# Copy source code
+COPY . .
 
-# Copy the public key to api gateway to verify JWT
-RUN mkdir -p /build/ApiGateway/src/main/resources/certs
-RUN cp public.pem /build/ApiGateway/src/main/resources/certs/public.pem
+# Create certs directory and copy keys
+RUN mkdir -p /src/Identity/certs && \
+    cp /private.pem /src/Identity/certs/private.pem && \
+    cp /public.pem /src/Identity/certs/public.pem && \
+    mkdir -p /src/ApiGateway/certs && \
+    cp /public.pem /src/ApiGateway/certs/public.pem
 
-# Build the project
-RUN mvn clean package  -DskipTests
-
-
-# specify targets for each microservice
 # ApiGateway
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS api-gateway
+FROM build AS api-gateway-build
+WORKDIR /src/ApiGateway
+RUN dotnet publish "ApiGateway.csproj" -c Release -o /app/publish
 
-# Copy only the jar file
-COPY --from=0 /build/ApiGateway/target/apigateway-1.0-SNAPSHOT.jar apigateway.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","apigateway.jar"]
-
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS api-gateway
+WORKDIR /app
+COPY --from=api-gateway-build /app/publish .
+COPY --from=build /src/ApiGateway/certs ./certs
+ENTRYPOINT ["dotnet", "ApiGateway.dll"]
 
 # Cart
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS cart
+FROM build AS cart-build
+WORKDIR /src/Cart
+RUN dotnet publish "Cart.csproj" -c Release -o /app/publish
 
-# Copy only the jar file
-COPY --from=0 /build/Cart/target/cart-1.0-SNAPSHOT.jar cart.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","cart.jar"]
-
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS cart
+WORKDIR /app
+COPY --from=cart-build /app/publish .
+ENTRYPOINT ["dotnet", "Cart.dll"]
 
 # Identity
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS identity
+FROM build AS identity-build
+WORKDIR /src/Identity
+RUN dotnet publish "Identity.csproj" -c Release -o /app/publish
 
-# Copy only the jar file
-COPY --from=0 /build/Identity/target/identity-1.0-SNAPSHOT.jar identity.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","identity.jar"]
-
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS identity
+WORKDIR /app
+COPY --from=identity-build /app/publish .
+COPY --from=build /src/Identity/certs ./certs
+ENTRYPOINT ["dotnet", "Identity.dll"]
 
 # Order
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS order
+FROM build AS order-build
+WORKDIR /src/Order
+RUN dotnet publish "Order.csproj" -c Release -o /app/publish
 
-# Copy only the jar file
-COPY --from=0 /build/Order/target/order-1.0-SNAPSHOT.jar order.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","order.jar"]
-
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS order
+WORKDIR /app
+COPY --from=order-build /app/publish .
+ENTRYPOINT ["dotnet", "Order.dll"]
 
 # Product
-# Use lightweight jre as base image
-FROM bellsoft/liberica-runtime-container:jre-17-slim-musl AS product
+FROM build AS product-build
+WORKDIR /src/Product
+RUN dotnet publish "Product.csproj" -c Release -o /app/publish
 
-# Copy only the jar file
-COPY --from=0 /build/Product/target/product-1.0-SNAPSHOT.jar product.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","product.jar"]
-
-
-# Payment
-# Use lightweight python image as base image
-FROM python:3.10-alpine AS payment
-
-# make sure all messages always reach console
-ENV PYTHONUNBUFFERED=1
-
-# prevent writing bytecode
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Copy the entire python project
-COPY Payment /Payment
-
-# Set working directory
-WORKDIR /Payment
-
-# Install dependencies
-RUN pip install -r requirements.txt
-
-# Run the python file
-ENTRYPOINT ["python", "app.py"]
-
-
-# Fluentd
-FROM fluent/fluentd:v1.12.0-debian-1.0 AS fluentd
-
-USER root
-
-RUN gem install excon -v 0.109.0
-RUN gem uninstall -I elasticsearch && gem install elasticsearch -v 7.13.3
-
-RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--version", "5.0.3"]
-
-USER fluent
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS product
+WORKDIR /app
+COPY --from=product-build /app/publish .
+ENTRYPOINT ["dotnet", "Product.dll"]

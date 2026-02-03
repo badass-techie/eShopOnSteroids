@@ -1,37 +1,37 @@
-# This image generates the keys required for JWT authentication
-FROM alpine:3.14 AS keygen
+# Development Dockerfile for .NET services
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /src
 
-RUN apk add --no-cache openssl
+# Generate RSA keys for JWT
+RUN apt-get update && apt-get install -y openssl && \
+    openssl genrsa -out /keypair.pem 2048 && \
+    openssl rsa -in /keypair.pem -pubout -out /public.pem && \
+    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in /keypair.pem -out /private.pem
 
-WORKDIR /certs
+# Copy project files
+COPY ["eShopOnSteroids.sln", "./"]
+COPY ["Identity/Identity.csproj", "Identity/"]
+COPY ["Cart/Cart.csproj", "Cart/"]
+COPY ["Order/Order.csproj", "Order/"]
+COPY ["Product/Product.csproj", "Product/"]
+COPY ["ApiGateway/ApiGateway.csproj", "ApiGateway/"]
 
-RUN openssl genrsa -out keypair.pem 2048 && \
-    openssl rsa -in keypair.pem -pubout -out public.pem && \
-    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem
+# Restore dependencies
+RUN dotnet restore "eShopOnSteroids.sln"
 
+# Copy source code
+COPY . .
 
-# This is a base image for all maven microservices
-FROM maven:3.8.3-openjdk-17 AS maven-base
+# Create certs directory and copy keys
+RUN mkdir -p /src/Identity/certs && \
+    cp /private.pem /src/Identity/certs/private.pem && \
+    cp /public.pem /src/Identity/certs/public.pem && \
+    mkdir -p /src/ApiGateway/certs && \
+    cp /public.pem /src/ApiGateway/certs/public.pem
 
-COPY . /app
+# Install dotnet-ef tool for migrations
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
 
-WORKDIR /app
-
-# Build all maven modules
-RUN mvn clean install -DskipTests
-
-
-# This image is used to build the payment microservice
-FROM python:3.10-slim AS payment
-
-# make sure all messages always reach console
-ENV PYTHONUNBUFFERED=1
-
-# prevent writing bytecode
-ENV PYTHONDONTWRITEBYTECODE=1
-
-COPY Payment /app
-
-WORKDIR /app
-
-RUN pip install -r requirements.txt
+# Development mode with hot reload
+ENV ASPNETCORE_ENVIRONMENT=Development
